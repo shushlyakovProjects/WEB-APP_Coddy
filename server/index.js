@@ -1,12 +1,42 @@
 const express = require('express')
+const cookieParser = require('cookie-parser') // Пакет для парсинга cookies
+const connectionDB = require('./controllers/connectionDB')
+
+const { registration } = require('./controllers/registration')
+const { authorization } = require('./controllers/authorization')
 
 const app = express()
 const PORT = 3000
+
+app.use(express.json()) // Для корректного чтения JSON
+app.use(cookieParser()) // Для корректного чтения Cookies
+
 
 app.get('/', (request, response) => {
     response.status(200).send('<H1>Server is running...</H1>')
 })
 
+app.post('/registration', registration)
+app.post('/authorization', authorization)
+
+
+app.post('/testAdmin', (request, response) => {
+    console.log('Проверка существования пользователей');
+    
+    const SQL_QUERY = 'SELECT * FROM users'
+    connectionDB.query(SQL_QUERY, (error, result) => {
+        if (error) {
+            console.log('Database error! Occurred while checking the admin. ');
+            response.status(500).send('Database error!')
+        }
+        else {
+            if (result.length == 0) {
+                console.log('Moving to registration of a new administator...');
+                response.status(302).send('/reg-admin')
+            }
+        }
+    })
+})
 
 
 app.listen(PORT, () => {

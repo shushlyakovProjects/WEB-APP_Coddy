@@ -1,0 +1,19 @@
+:root{
+    --color_background-1_white: #F4F5F6;
+    --color_background-2_white: #E7EBFA;
+    --color_background-3_white: #FFFFFF;
+    --color_background-4_white: #D0DFE6;
+
+    --color_accent_lightBlue: #0093B5;
+    --color_accent_darkBlue: #00384F;
+    --color_accent_pink: #FF16A3;
+    --color_accent_gray: #D0D0D0;
+
+    --color_text_gray: #333333;
+    --color_text_black: #111111;
+
+    --color_gradient_darkBlue: linear-gradient(175deg, #0093B5, #00384F);
+    --color_gradient_lightBlue: linear-gradient(90deg, #5CB8CE, #5DD3EE, #0093B5);
+    --color_gradient_orange: linear-gradient(-45deg, #EA4400, #FF6600, #FFD900);
+    --color_gradient_pink: linear-gradient(0deg, #FF16A3, #FF93D5, #FF16A3);
+}

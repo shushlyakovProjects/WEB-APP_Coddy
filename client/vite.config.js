@@ -12,5 +12,20 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    proxy: {
+      '/server': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/server/, '')
+      },
+      // '/socket.io':{
+      //   target: 'http://localhost:4000',
+      //   changeOrigin: true,
+      //   ws: true,
+      // }
+    }
+
   }
 })

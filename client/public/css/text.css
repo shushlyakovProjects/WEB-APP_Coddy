@@ -1,0 +1,12 @@
+:root{
+    --size_textDesktop_header-1: 48px;
+    --size_textDesktop_header-2: 24px;
+    --size_textDesktop_body-1: 18px;
+    --size_textDesktop_body-2: 14px;
+
+    --size_textMobile_header-1: 24px;
+    --size_textMobile_header-2: 18px;
+    --size_textMobile_body-1: 14px;
+    --size_textMobile_body-2: 12px;
+    --size_textMobile_body-3: 10px;
+}
