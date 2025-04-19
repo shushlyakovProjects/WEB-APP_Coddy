@@ -5,21 +5,23 @@ const connectionDB = require('./connectionDB')
 const { SECRET_ACCESS_KEY } = require('../config')
 
 // Генерация токена доступа
-function generateAccessToken(email, hashPass) {
+function generateAccessToken(id, role) {
     const payload = {
-        email, hashPass
+        id, role
     }
     return jwt.sign(payload, SECRET_ACCESS_KEY)
 }
 
 function authorization(request, response) {
+    // console.log('Авторизация...');
+
     if (request.cookies.ACCESS_TOKEN) {
         // Токен доступа обнаружен, значит пользователь уже проходил авторизацию
         const token = request.cookies.ACCESS_TOKEN
-        
+
         // Проверяем действительность токена
         jwt.verify(token, SECRET_ACCESS_KEY, (error, decodeData) => {
-            if (error) { 
+            if (error) {
                 response.status(401).send('Токен доступа недействителен')
             }
             else {
@@ -31,11 +33,12 @@ function authorization(request, response) {
                     connectionDB.query(findUserQuery, (err, result) => {
                         if (err) { response.status(500).send('Пользователь не найден в базе') }
                         else {
+                            console.log('Администратор авторизован');
                             response.status(200).json(result)
                         }
                     })
                 } else {
-
+                    console.log('Не админ. Авторизация...');
                 }
             }
         })
@@ -43,6 +46,11 @@ function authorization(request, response) {
         // Авторизация впервые (токена нет!)
         // Достаем данные из запроса
         const { email, password } = request.body
+
+        // const salt = bcrypt.genSaltSync(5) // Генерируем соль
+        // const hashPass = bcrypt.hashSync(password, salt) // Хешируем пароль
+        // console.log(hashPass);
+        
 
         // Подготавливаем SQL-запрос на проверку существования пользователя
         const SQL_QUERY = `SELECT * FROM users WHERE email = '${email}'`
@@ -63,7 +71,7 @@ function authorization(request, response) {
                     // Проверка пароля
                     if (bcrypt.compareSync(password, candidate.password)) {
                         // Аутентификация выполнена! 
-                        const token = generateAccessToken(candidate.id, candidate.role)
+                        const token = generateAccessToken(candidate.user_id, candidate.role)
                         response.cookie('ACCESS_TOKEN', token, { maxAge: 18000000 }).status(200).json(candidate)
                         // Авторизация выполнена! 
                     } else {

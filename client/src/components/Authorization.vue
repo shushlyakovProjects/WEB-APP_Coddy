@@ -45,7 +45,7 @@ export default {
                 })
                 .catch((error) => {
                     console.log(error);
-                    this.messages.error = error
+                    this.messages.error = error.response.data
                     this.messages.success = ''
                 })
         },

@@ -3,14 +3,22 @@ import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import store from './store'
 
-import Main from './components/Main.vue'
+import Main from './components/Authorized/Main.vue'
 import Authorization from './components/Authorization.vue'
-import RegistrationAdmin from './components/RegistrationAdmin.vue'
+import Profile from './components/Authorized/Profile.vue'
+import UsersList from './components/Authorized/UsersList.vue'
+import MenteeList from './components/Authorized/MenteeList.vue'
+// import EditAdmin from './components/EditAdmin.vue'
+// import RegistrationAdmin from './components/RegistrationAdmin.vue'
 
 const routes = [
     { path: '/', component: Main },
     { path: '/auth', component: Authorization },
-    { path: '/reg-admin', component: RegistrationAdmin },
+    { path: '/mentor/lk', component: Profile },
+    { path: '/mentor/users-list', component: UsersList },
+    { path: '/mentor/mentee-list', component: MenteeList },
+    // { path: '/mentor/edit-admin', component: EditAdmin },
+    // { path: '/reg-admin', component: RegistrationAdmin },
 ]
 
 const router = createRouter({
