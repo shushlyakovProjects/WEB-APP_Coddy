@@ -1,30 +1,54 @@
 <template>
     <div>
-        <main>
-            <h2>Список пользователей приложения</h2>
+        <main class="wrapper">
+            <AddUser @closeAddUser="isOpenAddUser = false" v-if="isOpenAddUser"></AddUser>
+
+            <header>
+                <h2>Пользователи</h2>
+                <nav>
+                    <img class="icon" src="../../../public/img/useradd.svg" alt="Добавить пользователя"
+                        title="Добавить пользователя" @click="this.isOpenAddUser = true">
+                </nav>
+            </header>
 
             <div class="users">
                 <div class="users__item" v-for="(item, index) in USERS_LIST" :key="index">
-                    <p>Фамилия: {{ item.last_name }}</p>
-                    <p>Имя: {{ item.first_name }}</p>
+                    <p>{{ item.last_name }} {{ item.first_name }}</p>
                     <p>Контакты: {{ item.phone_number }}</p>
                     <p>Статус: {{ item.role }}</p>
                 </div>
+
+                <div class="loading" v-if="!USERS_LIST.length"></div>
             </div>
+
         </main>
     </div>
 </template>
 
 <script>
+import axios from 'axios';
+import AddUser from './AddUser.vue';
+
 export default {
+    components: { AddUser },
     data() {
         return {
-            USERS_LIST: [
-                { last_name: 'Иванов', first_name: 'Иван', phone_number: '89998887766', role: 'moderator' },
-                { last_name: 'Иванов', first_name: 'Иван', phone_number: '89998887766', role: 'moderator' },
-                { last_name: 'Иванов', first_name: 'Иван', phone_number: '89998887766', role: 'moderator' },
-                { last_name: 'Иванов', first_name: 'Иван', phone_number: '89998887766', role: 'moderator' },
-            ]
+            USERS_LIST: [],
+            isOpenAddUser: false
+        }
+    },
+    mounted() {
+        this.downloadUsers()
+    },
+    methods: {
+        async downloadUsers() {
+            await axios.post('/server/from-admin/downloadUsers')
+                .then((result) => {
+                    this.USERS_LIST = result.data
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
         }
     },
 }
@@ -43,6 +67,12 @@ export default {
     border: 1px solid var(--color_accent_gray);
     padding: 10px;
     display: grid;
-    grid-template: repeat(2, 40px) / repeat(4, 1fr);
+    grid-template: repeat(2, auto) / repeat(3, 1fr);
+}
+
+.wrapper header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 </style>

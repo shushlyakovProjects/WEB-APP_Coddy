@@ -22,6 +22,7 @@ function authorization(request, response) {
         // Проверяем действительность токена
         jwt.verify(token, SECRET_ACCESS_KEY, (error, decodeData) => {
             if (error) {
+                toLog('Ошибка при авторизации. Токен доступа недействителен', 'Error')
                 response.status(401).send('Токен доступа недействителен')
             }
             else {
@@ -33,7 +34,7 @@ function authorization(request, response) {
                     connectionDB.query(findUserQuery, (err, result) => {
                         if (err) { response.status(500).send('Пользователь не найден в базе') }
                         else {
-                            console.log('Администратор авторизован');
+                            toLog('Авторизация администратора')
                             response.status(200).json(result)
                         }
                     })
@@ -59,7 +60,8 @@ function authorization(request, response) {
         connectionDB.query(SQL_QUERY, (err, result) => {
             // Если ошибка, то отвечаем на клиент
             if (err) {
-                console.log('Database error! Occurred while authorization.');
+                toLog('Ошибка базы данных. Блок авторизации', 'Error')
+                // console.log('Database error! Occurred while authorization.');
                 response.status(500).send('Ошибка базы данных')
             }
             // Если ошибок нет, идем дальше
@@ -82,7 +84,6 @@ function authorization(request, response) {
                 }
             }
         })
-
     }
 }
 

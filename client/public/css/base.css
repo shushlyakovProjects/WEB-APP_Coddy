@@ -39,7 +39,8 @@ ul,li{
 }
 
 button,
-input {
+input, 
+select {
     box-shadow: none;
     border: none;
     outline: none;
@@ -47,6 +48,9 @@ input {
     padding: 6px 10px;
     border-radius:5px;
     font-family: Noto-sans;
+}
+select option[value='']{
+    color: red;
 }
 input[type='submit'], button{
     cursor: pointer;

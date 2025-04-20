@@ -2,6 +2,7 @@
     <div class="adminSettings" @click="closeAdminSettings">
 
         <main class="wrapper">
+
             <header>
                 <h2>Редактирование</h2>
                 <img class="icon" src="../../../public/img/close.svg" alt="Закрыть" title="Закрыть настройки"
@@ -13,7 +14,9 @@
                     <p>{{ index }}</p>
                     <input type="text" :placeholder="'Укажите ' + index" v-model="infoCurrentUser[index]">
                 </div>
+
                 <p>Дополнительная проверка на администратора?</p>
+
                 <button @click="editAdmin">Обновить данные</button>
                 <p class="small errorMessage">{{ messages.error }}</p>
                 <p class="small successMessage">{{ messages.success }}</p>
@@ -67,7 +70,7 @@ export default {
         },
         async editAdmin() {
             // if (this.infoCurrentUser.password == '') { this.infoCurrentUser.password = this.getCurrentUser.password }
-            await axios.post('/server/mentor/edit-admin', this.infoCurrentUser)
+            await axios.post('/server/from-admin/edit-admin', this.infoCurrentUser)
                 .then((result) => {
                     this.messages.error = ''
                     this.messages.success = 'Успешно'

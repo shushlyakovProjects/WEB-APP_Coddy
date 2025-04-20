@@ -5,7 +5,7 @@ function registration(request, response) {
     const SQL_QUERY = 'SELECT * FROM users'
     connectionDB.query(SQL_QUERY, (error, result) => {
         if (error) {
-            console.log('Database error! Occurred while checking the admin. ');
+            toLog('Ошибка базы данных. Блок проверки при регистрации', "Error")
             response.status(500).send('Ошибка базы данных')
         }
         else {
@@ -21,16 +21,12 @@ function registration(request, response) {
 
                 connectionDB.query(SQL_QUERY, (error, result) => {
                     if (error) {
-                        console.log(error);
-                        
-                        console.log('Database error! Occurred while registration the admin. ');
+                        toLog('Ошибка базы данных. Блок регистрации', "Error")
                         response.status(500).send('Ошибка базы данных')
                     } else {
                         response.status(200).send('Регистрация прошла успешно')
                     }
                 })
-
-
             } else {
                 response.status(403).send('Доступ запрещен')
             }

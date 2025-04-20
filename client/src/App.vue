@@ -40,9 +40,29 @@ main {
   height: 30px;
   object-fit: contain;
   transition-duration: 0.2s;
+  cursor: pointer;
+  border-radius: 50%;
+  transform: scale(1.1);
+  image-rendering: crisp-edges;
 }
 
 .icon:hover {
-  transform: rotate(90deg) scale(1.1);
+  transform: scale(1.3);
+  box-shadow: 0 0 2px var(--color_accent_darkBlue);
 }
+
+.loading{
+  width: 20px;
+  height: 20px;
+  border-radius: 30%;
+  animation: loading 1.3s infinite ease-in-out;
+  border: 1px solid var(--color_accent_darkBlue);
+}
+
+@keyframes loading {
+  0%{transform: translateX(0px) rotate(0deg);border-radius: 50%; opacity: 0;}
+  50%{transform: translateX(50px) rotate(135deg); border-radius: 0; opacity: 1;}
+  100%{transform: translateX(100px) rotate(300deg);border-radius: 50%; opacity: 0;}
+}
+
 </style>

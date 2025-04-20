@@ -1,15 +1,16 @@
 <template>
     <div>
-        <main>
+        <main class="wrapper">
             <EditAdmin @closeAdminSettings="isOpenAdminSettings = false" v-if="isOpenAdminSettings"></EditAdmin>
 
-            <div class="header">
+            <header>
                 <h2>{{ getCurrentUser.last_name }} {{ getCurrentUser.first_name }}</h2>
                 <nav>
                     <img class="icon" src="../../../public/img/settings.svg" alt="Настройки" title="Редактировать профиль"
                         @click="this.isOpenAdminSettings = true">
                 </nav>
-            </div>
+            </header>
+
             <div class="info1">
                 <ul>
                     <li> <span>Роль</span><br>
@@ -66,7 +67,7 @@ main>* {
     border-radius: 10px;
 }
 
-.header {
+.wrapper header {
     grid-area: header;
     display: flex;
     justify-content: space-between;

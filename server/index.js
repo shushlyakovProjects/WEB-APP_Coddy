@@ -14,10 +14,15 @@ app.use(cookieParser()) // Для корректного чтения Cookies
 
 // ДОБАВИТЬ MIDDLEWARE ПРОВЕРКИ ТОКЕНА. ЕСЛИ ТОКЕНА НЕТ - РАЗЕРЕШЕНИЙ НЕТ (КРОМЕ АВТОРИЗАЦИИ)
 
+app.use((requst, response, next) => {
+    toLog(`Запрос на ${requst.originalUrl}`)
+    next()
+})
+
 // Перенаправление на внешние контроллеры
 app.post('/registration', registration)
 app.post('/authorization', authorization)
-app.use('/mentor', mentorController)
+app.use('/from-admin', mentorController)
 
 // Базоый путь, индикатор активности
 app.get('/', (request, response) => {
@@ -27,7 +32,7 @@ app.get('/', (request, response) => {
 
 // app.post('/testAdmin', (request, response) => {
 //     console.log('Проверка существования пользователей');
-    
+
 //     const SQL_QUERY = 'SELECT * FROM users'
 //     connectionDB.query(SQL_QUERY, (error, result) => {
 //         if (error) {
@@ -43,6 +48,23 @@ app.get('/', (request, response) => {
 //     })
 // })
 
+// ЛОГИРОВАНИЕ
+const fs = require('fs')
+global.toLog = (data, status = 'BaseAction') => {
+    const filePath = __dirname + '/logs.log'
+    const now = new Date()
+    let newLog = ''
+
+    if (status == 'BaseAction') {
+        newLog += `Событие: ${data}; \n\t Дата: ${now}`
+    }
+    if (status == 'Error') {
+        newLog += `ОШИБКА! Событие: ${data}; \n\t Дата: ${now}`
+    }
+    fs.appendFile(filePath, `${newLog}\n`, (error) => {
+        if (error) { console.log('Ошибка логирования! ' + error); }
+    })
+}
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT: ${PORT}`);
