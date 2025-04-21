@@ -11,7 +11,7 @@ router.use((request, response, next) => {
     const token = request.cookies.ACCESS_TOKEN
     jwt.verify(token, SECRET_ACCESS_KEY, (error, decodeData) => {
         if (error) {
-            toLog(`Попытка несанкционированного доступа на адрес ${request.baseUrl}`, 'Error')
+            // toLog(`Попытка несанкционированного доступа на адрес ${request.originalUrl}`, 'Error')
             response.status(401).send('Токен доступа недействителен')
         }
         else {
@@ -29,7 +29,7 @@ router.post('/downloadUsers', (request, response) => {
         const SQL_QUERY = `SELECT * FROM users`
         connectionDB.query(SQL_QUERY, (error, result) => {
             if (error) {
-                toLog('Ошибка базы данных. Блок загрузки пользователей', 'Error')
+                // toLog('Ошибка базы данных. Блок загрузки пользователей', 'Error')
                 response.status(500).send('Ошибка базы данных')
             }
             else { response.status(200).json(result) }
@@ -49,7 +49,7 @@ router.post('/addNewUser', (request, response) => {
             VALUES (null, '${email}', '${hashPass}', '${phone_number}', '${first_name}', '${last_name}', '${role}')`
         connectionDB.query(SQL_QUERY, (error, result) => {
             if (error) {
-                toLog('Ошибка базы данных. Блок создания нового пользователя', 'Error')
+                // toLog('Ошибка базы данных. Блок создания нового пользователя', 'Error')
                 response.status(500).send('Ошибка базы данных')
             }
             else { response.status(200).send('Пользователь добавлен') }
@@ -77,13 +77,46 @@ router.post('/edit-admin', (request, response) => {
 
         connectionDB.query(SQL_QUERY, (error, result) => {
             if (error) {
-                toLog('Ошибка базы данных. Блок обновления информации администратора', "Error")
+                // toLog('Ошибка базы данных. Блок обновления информации администратора', "Error")
                 response.status(500).send('Ошибка базы данных')
             } else {
-                toLog('Данные администратора были обновлены!')
+                // toLog('Данные администратора были обновлены!')
                 response.status(200).send('Данные обновлены успешно!')
             }
         })
+    }
+
+})
+
+router.post('/edit-user', (request, response) => {
+    const { id, role } = request.dataFromChecking
+    if (role == 'admin') {
+        
+        const { user_id, email, password, phone_number, first_name, last_name, role } = request.body
+
+        let SQL_QUERY = null
+
+        if (password) {
+            const salt = bcrypt.genSaltSync(5) // Генерируем соль
+            const hashPass = bcrypt.hashSync(password, salt) // Хешируем пароль
+
+            SQL_QUERY = `UPDATE users SET email='${email}', password='${hashPass}', phone_number='${phone_number}', first_name='${first_name}', last_name='${last_name}', role='${role}' WHERE user_id='${user_id}'`
+
+        }
+        else { SQL_QUERY = `UPDATE users SET email='${email}', phone_number='${phone_number}', first_name='${first_name}', last_name='${last_name}', role='${role}' WHERE user_id='${user_id}'` }
+
+
+        connectionDB.query(SQL_QUERY, (error, result) => {
+            if (error) {
+                // toLog('Ошибка базы данных. Блок обновления информации администратора', "Error")
+                response.status(500).send('Ошибка базы данных')
+            } else {
+                // toLog('Данные администратора были обновлены!')
+                response.status(200).send('Данные обновлены успешно!')
+            }
+        })
+    }else{
+        response.status(403).send('Доступ запрещен!')
     }
 
 })

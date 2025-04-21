@@ -5,7 +5,7 @@ function registration(request, response) {
     const SQL_QUERY = 'SELECT * FROM users'
     connectionDB.query(SQL_QUERY, (error, result) => {
         if (error) {
-            toLog('Ошибка базы данных. Блок проверки при регистрации', "Error")
+            // toLog('Ошибка базы данных. Блок проверки при регистрации', "Error")
             response.status(500).send('Ошибка базы данных')
         }
         else {
@@ -21,7 +21,7 @@ function registration(request, response) {
 
                 connectionDB.query(SQL_QUERY, (error, result) => {
                     if (error) {
-                        toLog('Ошибка базы данных. Блок регистрации', "Error")
+                        // toLog('Ошибка базы данных. Блок регистрации', "Error")
                         response.status(500).send('Ошибка базы данных')
                     } else {
                         response.status(200).send('Регистрация прошла успешно')

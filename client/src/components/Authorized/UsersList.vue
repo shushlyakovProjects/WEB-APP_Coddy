@@ -2,6 +2,8 @@
     <div>
         <main class="wrapper">
             <AddUser @closeAddUser="isOpenAddUser = false" v-if="isOpenAddUser"></AddUser>
+            <EditUser @closeUserSettings="isOpenUserSettings = false" @downloadUsers="downloadUsers" v-if="isOpenUserSettings"
+                :selectedUser="this.selectedUser"></EditUser>
 
             <header>
                 <h2>Пользователи</h2>
@@ -13,9 +15,19 @@
 
             <div class="users">
                 <div class="users__item" v-for="(item, index) in USERS_LIST" :key="index">
-                    <p>{{ item.last_name }} {{ item.first_name }}</p>
-                    <p>Контакты: {{ item.phone_number }}</p>
-                    <p>Статус: {{ item.role }}</p>
+                    <div><p>{{ item.last_name }} {{ item.first_name }}</p></div>
+                    <div>
+                        <p>Контакты: {{ item.phone_number }}</p>
+                        <p>Email: {{ item.email }}</p>
+                    </div>
+                    <div>
+                        <p>Статус: {{ item.role }}</p>
+                    </div>
+                    <nav>
+                        <img class="icon" src="../../../public/img/settings.svg" alt="Настройки" v-if="item.role!='admin'"
+                            title="Найстройки пользователя"
+                            @click="this.isOpenUserSettings = true; this.selectedUser = item">
+                    </nav>
                 </div>
 
                 <div class="loading" v-if="!USERS_LIST.length"></div>
@@ -28,13 +40,16 @@
 <script>
 import axios from 'axios';
 import AddUser from './AddUser.vue';
+import EditUser from './EditUser.vue';
 
 export default {
-    components: { AddUser },
+    components: { AddUser, EditUser },
     data() {
         return {
             USERS_LIST: [],
-            isOpenAddUser: false
+            isOpenAddUser: false,
+            isOpenUserSettings: false,
+            selectedUser: {}
         }
     },
     mounted() {
@@ -67,7 +82,11 @@ export default {
     border: 1px solid var(--color_accent_gray);
     padding: 10px;
     display: grid;
-    grid-template: repeat(2, auto) / repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+}
+.users__item nav{
+    justify-self: end;
 }
 
 .wrapper header {
