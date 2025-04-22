@@ -2,12 +2,12 @@ const express = require('express')
 const cookieParser = require('cookie-parser') // Пакет для парсинга cookies
 
 // Подключение внешних модулей
-const connectionDB = require('./controllers/connectionDB')
 const { registration } = require('./controllers/registration')
 const { authorization } = require('./controllers/authorization')
-const mentorController = require('./controllers/mentor')
+const adminController = require('./controllers/fromAdmin')
+const mentorController = require('./controllers/fromMentor')
+const connectionDB = require('./controllers/connectionDB')
 const log = require('./logs/log')
-
 
 const app = express()
 const PORT = 3000
@@ -22,7 +22,8 @@ app.use(log) // Логирование
 // Перенаправление на внешние контроллеры
 app.post('/registration', registration)
 app.post('/authorization', authorization)
-app.use('/from-admin', mentorController)
+app.use('/from-admin', adminController)
+app.use('/from-mentor', mentorController)
 
 // Базоый путь, индикатор активности
 app.get('/', (request, response) => {

@@ -1,12 +1,12 @@
 <template>
-    <div class="adminSettings" @click="closeAdminSettings">
+    <div class="profileSettings" @click="closeProfileSettings">
 
         <main class="wrapper">
 
             <header>
-                <h2>Редактирование</h2>
+                <h2>Редактирование профиля</h2>
                 <img class="icon" src="../../../public/img/close.svg" alt="Закрыть" title="Закрыть настройки"
-                    @click="closeAdminSettings">
+                    @click="closeProfileSettings">
             </header>
 
             <div class="settings">
@@ -15,9 +15,7 @@
                     <input type="text" :placeholder="'Укажите ' + index" v-model="infoCurrentUser[index]">
                 </div>
 
-                <p>Дополнительная проверка на администратора?</p>
-
-                <button @click="editAdmin">Обновить данные</button>
+                <button @click="editProfile">Обновить данные</button>
                 <p class="small errorMessage">{{ messages.error }}</p>
                 <p class="small successMessage">{{ messages.success }}</p>
             </div>
@@ -46,7 +44,7 @@ export default {
     computed: { ...mapGetters(['getCurrentUser']) },
     // При переходе на компонент
     mounted() {
-        window.addEventListener('keydown', this.closeAdminSettings, { once: true })
+        window.addEventListener('keydown', this.closeProfileSettings, { once: true })
         this.downloadCurrentUser()
     },
     // При обновлении приложения
@@ -58,10 +56,10 @@ export default {
         }
     },
     methods: {
-        closeAdminSettings(event) {
-            if (event.key == 'Escape' || event.target.classList[0] == 'adminSettings' || event.target.alt == 'Закрыть') {
-                this.$emit('closeAdminSettings');
-                window.removeEventListener('keydown', this.closeAdminSettings, { once: true })
+        closeProfileSettings(event) {
+            if (event.key == 'Escape' || event.target.classList[0] == 'profileSettings' || event.target.alt == 'Закрыть') {
+                this.$emit('closeProfileSettings');
+                window.removeEventListener('keydown', this.closeProfileSettings, { once: true })
             }
         },
         downloadCurrentUser() {
@@ -74,12 +72,12 @@ export default {
                 }
             }
         },
-        async editAdmin() {
-            // if (this.infoCurrentUser.password == '') { this.infoCurrentUser.password = this.getCurrentUser.password }
-            await axios.post('/server/from-admin/edit-admin', this.infoCurrentUser)
+        async editProfile() {
+            await axios.post('/server/from-mentor/edit-profile', this.infoCurrentUser)
                 .then((result) => {
                     this.messages.error = ''
                     this.messages.success = 'Успешно'
+                    this.$emit('closeProfileSettings');
                     this.$store.dispatch('checkAuthorization', this.$router)
                 })
                 .catch((error) => {
@@ -96,7 +94,7 @@ export default {
 <style scoped>
 @import url(settings.css);
 
-.adminSettings {
+.profileSettings {
     position: fixed;
     z-index: 10;
 
@@ -110,4 +108,5 @@ export default {
     align-items: center;
     backdrop-filter: blur(3px);
 }
+
 </style>

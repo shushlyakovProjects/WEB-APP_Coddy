@@ -113,6 +113,8 @@ export default {
 </script>
 
 <style scoped>
+@import url(settings.css);
+
 .userSettings {
     position: fixed;
     z-index: 10;
@@ -126,29 +128,5 @@ export default {
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(3px);
-}
-
-.wrapper {
-    background-color: var(--color_background-1_white);
-    border-radius: 10px;
-}
-
-.wrapper header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.fields {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 30px;
-}
-
-.fields__item {
-    display: grid;
-    grid-template-columns: 150px 1fr;
-    gap: 20px;
 }
 </style>

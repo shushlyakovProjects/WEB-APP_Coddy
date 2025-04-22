@@ -2,12 +2,18 @@
     <div>
         <main class="wrapper">
             <EditAdmin @closeAdminSettings="isOpenAdminSettings = false" v-if="isOpenAdminSettings"></EditAdmin>
+            <EditProfile @closeProfileSettings="isOpenProfileSettings = false" v-if="isOpenProfileSettings"></EditProfile>
 
             <header>
                 <h2>{{ getCurrentUser.last_name }} {{ getCurrentUser.first_name }}</h2>
                 <nav>
-                    <img class="icon" src="../../../public/img/settings.svg" alt="Настройки" title="Редактировать профиль"
-                        @click="this.isOpenAdminSettings = true">
+                    <img class="icon" src="../../../public/img/settings.svg" alt="Настройки"
+                        title="Редактировать профиль" @click="this.isOpenAdminSettings = true"
+                        v-if="getCurrentUser.role == 'admin'">
+                    <img class="icon" src="../../../public/img/settings.svg" alt="Настройки"
+                        title="Редактировать профиль" @click="this.isOpenProfileSettings = true"
+                        v-if="getCurrentUser.role != 'admin'">
+                    <!-- НАСТРОЙКИ НЕ АДМИНА -->
                 </nav>
             </header>
 
@@ -31,12 +37,14 @@
 <script>
 import { mapGetters } from 'vuex';
 import EditAdmin from './EditAdmin.vue';
+import EditProfile from './EditProfile.vue';
 
 export default {
-    components: { EditAdmin },
+    components: { EditAdmin, EditProfile },
     data() {
         return {
             isOpenAdminSettings: false,
+            isOpenProfileSettings: false,
         }
     },
     mounted() { this.$store.dispatch('checkAuthorization', this.$router) },

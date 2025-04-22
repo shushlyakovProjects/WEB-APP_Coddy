@@ -3,8 +3,8 @@
         <h2 class="logo">Ментор CODDY</h2>
         <nav>
             <router-link class="link" to="/">Главная</router-link>
-            <router-link class="link" to="/mentor/mentee-list">Подопечные</router-link>
-            <router-link class="link" to="/mentor/users-list">Пользователи</router-link>
+            <router-link class="link" to="/mentor/mentee-list">Менти</router-link>
+            <router-link class="link" to="/mentor/users-list" v-if="currentUser.role=='admin'">Пользователи</router-link>
             <router-link class="link" to="/mentor/lk">Профиль</router-link>
             <a class="link" @click.prevent="logout">Выйти</a>
         </nav>
@@ -13,6 +13,7 @@
 
 <script>
 export default {
+    props: ['currentUser'],
     methods: {
         logout() {
             document.cookie = 'ACCESS_TOKEN = ; max-age=-1 ; path=/'

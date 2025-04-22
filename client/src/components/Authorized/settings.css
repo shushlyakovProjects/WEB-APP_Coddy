@@ -1,0 +1,37 @@
+.wrapper {
+    background-color: var(--color_background-1_white);
+    border-radius: 10px;
+}
+
+.wrapper header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.fields__item {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 20px;
+}
+
+.settings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.settings__item {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 20px;
+}

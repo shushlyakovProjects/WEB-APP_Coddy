@@ -1,7 +1,7 @@
 <template>
   <div id="main-wrapper">
 
-    <Header v-if="getCurrentUser.user_id"></Header>
+    <Header v-if="getCurrentUser.user_id" :currentUser="getCurrentUser"></Header>
 
     <router-view id="router-view"></router-view>
 

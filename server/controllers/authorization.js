@@ -21,25 +21,22 @@ function authorization(request, response) {
 
         // Проверяем действительность токена
         jwt.verify(token, SECRET_ACCESS_KEY, (error, decodeData) => {
-            if (error) {
-                // toLog('Ошибка при авторизации. Токен доступа недействителен', 'Error')
-                response.status(401).send('Токен доступа недействителен')
-            }
+            if (error) { response.status(401).send('Токен доступа недействителен') }
             else {
                 // Достаем данные из токена
                 const { id, role } = decodeData
                 if (role == 'admin') {
-                    // Выдаем данные базового пользователя
                     const findUserQuery = `SELECT * FROM users WHERE user_id = '${id}'`
                     connectionDB.query(findUserQuery, (err, result) => {
                         if (err) { response.status(500).send('Пользователь не найден в базе') }
-                        else {
-                            // toLog('Авторизация администратора')
-                            response.status(200).json(result)
-                        }
+                        else { response.status(200).json(result) }
                     })
                 } else {
-                    console.log('Не админ. Авторизация...');
+                    const findUserQuery = `SELECT * FROM users WHERE user_id = '${id}'`
+                    connectionDB.query(findUserQuery, (err, result) => {
+                        if (err) { response.status(500).send('Пользователь не найден в базе') }
+                        else { response.status(200).json(result) }
+                    })
                 }
             }
         })
@@ -51,7 +48,7 @@ function authorization(request, response) {
         // const salt = bcrypt.genSaltSync(5) // Генерируем соль
         // const hashPass = bcrypt.hashSync(password, salt) // Хешируем пароль
         // console.log(hashPass);
-        
+
 
         // Подготавливаем SQL-запрос на проверку существования пользователя
         const SQL_QUERY = `SELECT * FROM users WHERE email = '${email}'`
