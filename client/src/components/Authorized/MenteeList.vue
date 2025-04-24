@@ -64,7 +64,6 @@
                     <button @click="uploadToDataBaseForTracking()"
                         title="Отслеживать динамику с текущего момента">Загрузить в базу</button>
                 </nav>
-
             </header>
 
             <div class="mentee">
@@ -72,33 +71,33 @@
                     @click="this.selectedMentee = item">
                     <div>{{ index + 1 }}.</div>
                     <div>
-                        <p>{{ item.LastName }}</p>
-                        <p>{{ item.FirstName }}</p>
+                        <p class="small">{{ item.LastName }}</p>
+                        <p class="small">{{ item.FirstName }}</p>
                     </div>
                     <div>
-                        <p>Контакты: {{ item.Phone }}</p>
-                        <p>Email: {{ item.EMail }}</p>
+                        <p class="small">Контакты: {{ item.Mobile }}</p>
+                        <p class="small">Email: {{ item.EMail }}</p>
                     </div>
                     <div>
-                        <p>Занятий за неделю: {{ item.InfoEdUnits.countAllEdUnits }}</p>
-                        <p>Постоянных учеников: {{ item.InfoEdUnits.countConstantUnits }}</p>
-                        <p>Пробников: {{ item.InfoEdUnits.countTrialUnits }}</p>
+                        <p class="small">Занятий за неделю: {{ item.InfoEdUnits.CountAllEdUnits }}</p>
+                        <p class="small">Пробников: {{ item.InfoEdUnits.CountTrialUnits }}</p>
                     </div>
                     <div>
-                        <p>Работает с: {{ formatDate(item.Created) }}</p>
-                        <p>Всего: {{ numberWorkDays(item.Created) }} дней</p>
-                        <p>Дисциплин: {{ item.Disciplines.length }}</p>
+                        <p class="small">Постоянных учеников: {{ item.InfoEdUnits.CountConstantUnits }}</p>
+                        <p class="small">Дисциплин: {{ item.Disciplines.length }}</p>
+                    </div>
+                    <div>
+                        <p class="small">Работает с: {{ formatDate(item.Created) }}</p>
+                        <p class="small">Всего: {{ numberWorkDays(item.Created) }} дней</p>
                     </div>
                     <nav>
                         <p class="errorMessage"
                             v-show="!item.hasOwnProperty('PhotoUrls') || !item.hasOwnProperty('JobOrStudyPlace')"
                             title="Отсутсвуют необходимые данные">❗️</p>
-
                         <a :href='`https://coddy.t8s.ru/Profile/${item.Id}`' title="Открыть CRM пользователя"
                             target="_blank">
                             <img class="icon" src="../../../public/img/CRM_profile.svg" alt="CRM">
                         </a>
-
                     </nav>
                 </div>
 
@@ -112,7 +111,7 @@
 <script>
 import axios from 'axios';
 import MenteeCard from './MenteeCard.vue';
-
+import { mapGetters } from 'vuex';
 
 export default {
     components: { MenteeCard },
@@ -135,23 +134,21 @@ export default {
             }
         }
     },
-    mounted() {
-        this.getMentees()
-    },
+    computed: { ...mapGetters(['getMenteeList']) },
+    watch: { getMenteeList() { this.MENTEE_LIST = this.getMenteeList } },
+    mounted() { this.getMentees() },
     methods: {
         async uploadToDataBaseForTracking() {
             await this.getMentees()
-
             let DATALIST_FORTRACKING = []
 
             this.MENTEE_LIST.forEach((mentee, index) => {
                 // Постоянные ученики, Пробные уроки, Завершенные модули
-                const { Disciplines, FirstName, LastName, Id, CountAllEdUnits, CountConstantUnits, CountTrialUnits } = mentee
+                const { Disciplines, FirstName, LastName, Id } = mentee
+                const { CountAllEdUnits, CountConstantUnits, CountTrialUnits } = mentee.InfoEdUnits
                 let DATA_FORTRACKING = { Id, LastName, FirstName, Disciplines, CountAllEdUnits, CountConstantUnits, CountTrialUnits }
                 DATALIST_FORTRACKING.push(DATA_FORTRACKING)
-                // console.log(DATA_FORTRACKING);
             })
-            // console.log(DATALIST_FORTRACKING.length);
 
             await axios.post('/server/from-admin/uploadToDataBaseForTracking', { DATALIST_FORTRACKING })
                 .then((result) => { this.messages.success = result.data })
@@ -161,11 +158,8 @@ export default {
         },
         async getMentees() {
             this.filter = { menteesOfShushlyakov: false, disciplines: '', fioInclude: '', gender: '', sortOfEdUnits: '', workDays: { min: 0, max: 360 } }
-            this.MENTEE_LIST = this.$store.getters.getMenteeList
-            if (this.MENTEE_LIST.length == 0) {
-                await this.$store.dispatch('downloadMentees')
-                this.MENTEE_LIST = this.$store.getters.getMenteeList
-            }
+            this.MENTEE_LIST = this.getMenteeList
+            if (this.MENTEE_LIST.length == 0) { await this.$store.dispatch('downloadMentees') }
         },
         filterStart() {
             this.MENTEE_LIST = this.$store.getters.getMenteeListWithFiltres(this.filter)
@@ -196,16 +190,16 @@ header nav {
 .mentee {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     margin-top: 20px;
 }
 
 .mentee__item {
     border-radius: 10px;
     border: 1px solid var(--color_accent_gray);
-    padding: 10px;
+    padding: 5px 10px;
     display: grid;
-    grid-template-columns: 30px 1fr 2fr 2fr 2fr 50px;
+    grid-template-columns: 30px 1fr 3fr 2fr 2fr 2fr 50px;
     align-items: center;
     overflow-wrap: anywhere;
     gap: 20px;
@@ -250,7 +244,6 @@ header nav {
     transform: translate(0);
     opacity: 1;
 }
-
 
 .filtres {
     position: absolute;

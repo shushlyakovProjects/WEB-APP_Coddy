@@ -5,35 +5,9 @@ export default {
     actions: {
         async downloadMentees(context) {
             await axios.post('/server/from-mentor/downloadMentees')
-                .then((result) => {
-                    const teacherId_list = []
-                    result.data.forEach(element => {
-                        teacherId_list.push(element.Id)
-                    });
-                    let mentees_info_primary = result.data
-                    context.dispatch('downloadEdUnits', { teacherId_list, mentees_info_primary })
-                    // context.commit('updateMenteeList', result.data)
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
+                .then((result) => { context.commit('updateMenteeList', result.data.MENTEES_LIST) })
+                .catch((error) => { console.error(error); })
         },
-        async downloadEdUnits(context, { teacherId_list, mentees_info_primary }) {
-            await axios.post('/server/from-mentor/downloadEdUnits', { teacherId_list })
-                .then((result) => {
-                    const MENTEES_INFO = []
-                    const menteeEdUnits_list = result.data.menteeEdUnits_list
-                    menteeEdUnits_list.forEach(EdUnit => {
-                        let mentee = mentees_info_primary.find((elem) => elem.Id == EdUnit.teacherId)
-                        mentee.InfoEdUnits = EdUnit
-                        MENTEES_INFO.push(mentee)
-                    })
-                    context.commit('updateMenteeList', MENTEES_INFO)
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-        }
     },
     mutations: {
         updateMenteeList(state, newData) {
@@ -45,8 +19,6 @@ export default {
         // Временная модель (для фильтра)
         menteesIsNotOfShushlyakov: ['Мосеечева', 'Селезнев', 'Зимарев', 'Халлыев', 'Куликов', 'Каллио', 'Николаева', 'Дудкин',
             'Юдин', 'Петрова', 'Тихонова', 'Валиуллин', 'Бочкарев', 'Рест', 'Саковых', 'Носков', 'Сарычева', 'Почестнев', 'Проданов']
-
-
     },
     getters: {
         getMenteeList(state) {
@@ -68,17 +40,12 @@ export default {
                 return check1 && check2 && check3 && check4
             })
 
-            if (sortOfEdUnits == 'asc') {
-                filtredList.sort((a, b) => a.InfoEdUnits.countAllEdUnits - b.InfoEdUnits.countAllEdUnits)
-            }
-            if (sortOfEdUnits == 'desc') {
-                filtredList.sort((a, b) => b.InfoEdUnits.countAllEdUnits - a.InfoEdUnits.countAllEdUnits)
-            }
+            if (sortOfEdUnits == 'asc') { filtredList.sort((a, b) => a.InfoEdUnits.CountAllEdUnits - b.InfoEdUnits.CountAllEdUnits) }
+            if (sortOfEdUnits == 'desc') { filtredList.sort((a, b) => b.InfoEdUnits.CountAllEdUnits - a.InfoEdUnits.CountAllEdUnits) }
 
             // console.log(filtredList);
 
             return filtredList
-
         },
     }
 }
