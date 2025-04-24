@@ -20,34 +20,48 @@
 
             <div class="fields">
                 <div class="fields__item">
-
-                    <div class="avatar">
-                        <img :src="selectedMentee.hasOwnProperty('PhotoUrls') ?
-                            'https://coddy.t8s.ru/' + selectedMentee.PhotoUrls[1] :
-                            'https://coddy.t8s.ru/Content/themes/nwds/Images/no-photo-150x150.png'" alt="Аватар">
-                    </div>
-                    <div class="fio">
-                        <h2>{{ selectedMentee.LastName }} {{ selectedMentee.FirstName }} {{ selectedMentee.MiddleName }}
-                        </h2>
-                    </div>
-                    <div class="status">
-                        <p class="small">ID: {{ selectedMentee.Id }}</p>
-                        <p class="small">Статус: {{ selectedMentee.Status }}</p>
-                        <p class="small">Работает с: {{ formatDate(selectedMentee.Created) }}</p>
-                        <p class="small">Всего дней: {{ numberWorkDays(selectedMentee.Created) }}</p>
-                    </div>
-                    <div class="general">
-                        <div class="general__part1">
-                            <p class="small">Контактный номер: {{ selectedMentee.Mobile }}</p>
-                            <p class="small">Email: {{ selectedMentee.EMail }}</p>
+                    <div class="fields__item-left">
+                        <div class="avatar">
+                            <img :src="selectedMentee.hasOwnProperty('PhotoUrls') ?
+                                'https://coddy.t8s.ru/' + selectedMentee.PhotoUrls[1] :
+                                'https://coddy.t8s.ru/Content/themes/nwds/Images/no-photo-150x150.png'" alt="Аватар">
                         </div>
-                        <div class="general_part2">
-                            <p class="small">Адрес проживания: {{ selectedMentee.Address }}</p>
-                            <p class="small">Образование/Работа: {{ selectedMentee.JobOrStudyPlace }} {{
-                                selectedMentee.Position }}</p>
+                        <div class="status">
+                            <p class="small"><b>ID:</b> {{ selectedMentee.Id }}</p>
+                            <p class="small"><b>Статус:</b> {{ selectedMentee.Status }}</p>
+                            <p class="small"><b>Работает с:</b> {{ formatDate(selectedMentee.Created) }}</p>
+                            <p class="small"><b>Всего дней:</b> {{ numberWorkDays(selectedMentee.Created) }}</p>
                         </div>
                     </div>
+                    <div class="fields__item-right">
+                        <div class="fio">
+                            <h2>{{ selectedMentee.LastName }} {{ selectedMentee.FirstName }} {{
+                                selectedMentee.MiddleName }}
+                            </h2>
+                        </div>
+                        <div class="general">
+                            <p class="small"><b>Контактный номер:</b> <span>{{ selectedMentee.Mobile }}</span></p>
+                            <p class="small"><b>Email:</b> <span>{{ selectedMentee.EMail }}</span></p>
+                            
+                            <p class="small bold">Дисциплины: ({{ selectedMentee.Disciplines.length }})</p>
+                            <p class="small marker">{{ selectedMentee.Disciplines.join(', ') }}</p>
 
+                            <p class="small bold">Адрес проживания: {{ selectedMentee.Address }}</p>
+                            <p class="small marker">{{ selectedMentee.Address ? selectedMentee.Address : '❗️' }}</p>
+                            <p class="small bold">Образование/Работа: </p>
+                            <p class="small marker">{{ selectedMentee.JobOrStudyPlace ? selectedMentee.JobOrStudyPlace :
+                                '❗️' }}</p>
+                            <p class="small">{{ selectedMentee.Position }}</p>
+                            <p class="small bold">Контактное лицо: </p>
+                            <p class="small marker">{{ selectedMentee.Agents ?
+                                selectedMentee.Agents[0].WhoIs ?
+                                    `${selectedMentee.Agents[0].WhoIs}-${selectedMentee.Agents[0].FirstName}:
+                                ${selectedMentee.Agents[0].Mobile}` : `${selectedMentee.Agents[0].FirstName}:
+                                ${selectedMentee.Agents[0].Mobile}`
+                                : '❗️' }}</p>
+
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -64,7 +78,7 @@ export default {
             messages: {
                 error: '',
                 success: ''
-            }
+            },
         }
     },
     mounted() {
@@ -113,27 +127,27 @@ export default {
     backdrop-filter: blur(3px);
 }
 
-.wrapper {
-    max-height: 600px;
-}
-nav{
+nav {
     display: flex;
     gap: 10px;
 }
+
 .fields__item {
-    display: grid;
-    grid-template: auto auto auto / auto 40vw;
-    grid-template-areas:
-        'avatar fio'
-        'avatar general'
-        'status general'
-    ;
+    display: flex;
     gap: 10px;
-    height: 100%;
+    height: 60vh;
+    width: 60vw;
 }
 
+.fields__item-left,
+.fields__item-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-.fields__item>div {
+.fields__item-left>div,
+.fields__item-right>div {
     padding: 10px;
     background-color: var(--color_background-3_white);
     border-radius: 10px;
@@ -149,8 +163,8 @@ nav{
 
 .avatar img {
     border-radius: 10px;
-    width: 200px;
-    height: 200px;
+    width: 15vw;
+    aspect-ratio: 1/1;
     object-fit: contain;
 }
 
@@ -160,6 +174,7 @@ nav{
 
 .status {
     grid-area: status;
+    flex-grow: 1;
 }
 
 .general {
@@ -167,10 +182,33 @@ nav{
     overflow: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    flex-grow: 1;
 }
 
-.general_part2 {
-    max-height: 200px;
+.marker {
+    text-indent: 20px;
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.marker::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    background-color: var(--color_accent_lightBlue);
+}
+
+.bold {
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 2px;
+}
+
+.general span {
+    color: var(--color_accent_lightBlue);
 }
 </style>

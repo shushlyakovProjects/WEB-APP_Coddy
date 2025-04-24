@@ -34,37 +34,89 @@ img {
     width: 100%;
 }
 
-ul,li{
+.icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    transition-duration: 0.2s;
+    cursor: pointer;
+    border-radius: 50%;
+    transform: scale(1.1);
+    image-rendering: crisp-edges;
+}
+
+.icon:hover {
+    transform: scale(1.3);
+    box-shadow: 0 0 2px var(--color_accent_darkBlue);
+}
+
+ul,
+li {
     list-style: none;
 }
 
 button,
-input, 
+input,
 select {
     box-shadow: none;
     border: none;
     outline: none;
     transition-duration: 0.2s;
     padding: 6px 10px;
-    border-radius:5px;
+    border-radius: 5px;
     font-family: Noto-sans;
 }
-select option[value='']{
+
+select option[value=''] {
     color: red;
 }
-input[type='submit'], button{
+
+input[type='submit'],
+button {
     cursor: pointer;
     background: var(--color_accent_lightBlue);
     color: var(--color_background-2_white);
     margin-top: 10px;
 }
-input[type='submit']:hover, button:hover{
+
+input[type='submit']:hover,
+button:hover {
     background: var(--color_accent_darkBlue);
 }
 
-h1{font-size: var(--size_textDesktop_header-1)}
-h2{font-size:var(--size_textDesktop_header-2)}
-p{font-size: var(--size_textDesktop_body-1)}
-p.small{font-size: var(--size_textDesktop_body-2)}
-.errorMessage{color: rgb(244, 111, 111);}
-.successMessage{color: rgb(81, 211, 81);}
+h1 {
+    font-size: var(--size_textDesktop_header-1)
+}
+
+h2 {
+    font-size: var(--size_textDesktop_header-2)
+}
+
+p {
+    font-size: var(--size_textDesktop_body-1)
+}
+
+p.small {
+    font-size: var(--size_textDesktop_body-2)
+}
+
+.errorMessage {
+    color: rgb(244, 111, 111);
+}
+
+.successMessage {
+    color: rgb(54, 184, 54);
+}
+
+
+
+/* Настройка скроллбара */
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgb(139, 139, 139);
+    border-radius: 5px;
+}

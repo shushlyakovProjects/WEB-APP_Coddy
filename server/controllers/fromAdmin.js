@@ -15,6 +15,57 @@ router.use((request, response, next) => {
     })
 })
 
+router.post('/uploadToDataBaseForTracking', (request, response) => {
+    console.log('Загрузка информации в базу...');
+    const { id, role } = request.dataFromChecking
+    const { DATALIST_FORTRACKING } = request.body
+
+    if (role == 'admin') {
+
+        // Определение ID существующих преподавателей в базе
+        let IDs_EXISTING_MENTEES = []
+        const GET_EXISTING_SQL_QUERY = 'SELECT * FROM mentees'
+        connectionDB.query(GET_EXISTING_SQL_QUERY, (error, result) => {
+            if (error) { response.status(500).send('Ошибка базы данных') }
+            else {
+                result.forEach(mentee => { IDs_EXISTING_MENTEES.push(mentee.Id) })
+                // console.log(IDs_EXISTING_MENTEES);
+
+                // Перебор, определение, кого обновить, кого добавить
+                let SQL_QUERY = ''
+                let changedRows = 0
+
+                DATALIST_FORTRACKING.forEach((mentee, index) => {
+                    if (IDs_EXISTING_MENTEES.includes(mentee.Id)) {
+                        SQL_QUERY = `UPDATE mentees SET LastName='${mentee.LastName}', FirstName='${mentee.FirstName}',  Disciplines='${mentee.Disciplines}, CountAllEdUnits=${mentee.CountAllEdUnits}, 
+                            CountTrialUnits=${mentee.CountTrialUnits}, CountConstantUnits=${mentee.CountConstantUnits}' 
+                        WHERE Id='${mentee.Id}' AND (LastName<>'${mentee.LastName}' OR FirstName<>'${mentee.FirstName}' OR Disciplines<>'${mentee.Disciplines}' OR CountAllEdUnits<>'${mentee.CountAllEdUnits}' 
+                            OR CountTrialUnits<>'${mentee.CountTrialUnits}' OR CountConstantUnits<>'${mentee.CountConstantUnits}')`
+                    } else {
+                        SQL_QUERY = `INSERT INTO mentees (Id, LastName, FirstName, Disciplines, CountAllEdUnits, CountTrialUnits, CountConstantUnits) 
+                        VALUES ('${mentee.Id}', '${mentee.LastName}', '${mentee.FirstName}', '${mentee.Disciplines}', '${mentee.CountAllEdUnits}', '${mentee.CountTrialUnits}', '${mentee.CountConstantUnits})`
+                    }
+                    connectionDB.query(SQL_QUERY, (error, result) => {
+                        if (error) { 
+                            console.log(error);
+                            
+                            response.status(500).send('Ошибка базы данных') }
+                        else {
+                            if (result.affectedRows > 0) { changedRows++; }
+
+                            if (index == DATALIST_FORTRACKING.length - 1) {
+                                response.status(200).send(`Обновлено записей: ${changedRows}`)
+                            }
+                        }
+                    })
+                });
+            }
+        })
+    }
+    else {
+        response.status(403).send('Доступ запрещен!')
+    }
+})
 
 router.post('/downloadUsers', (request, response) => {
     console.log('Загрузка пользователей...');

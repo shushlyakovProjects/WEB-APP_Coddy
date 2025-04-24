@@ -6,12 +6,29 @@ export default {
         async downloadMentees(context) {
             await axios.post('/server/from-mentor/downloadMentees')
                 .then((result) => {
-                    // result.data.forEach(element => {
-                    //     console.log(element.LastName);
-
-                    // });
-
-                    context.commit('updateMenteeList', result.data)
+                    const teacherId_list = []
+                    result.data.forEach(element => {
+                        teacherId_list.push(element.Id)
+                    });
+                    let mentees_info_primary = result.data
+                    context.dispatch('downloadEdUnits', { teacherId_list, mentees_info_primary })
+                    // context.commit('updateMenteeList', result.data)
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+        },
+        async downloadEdUnits(context, { teacherId_list, mentees_info_primary }) {
+            await axios.post('/server/from-mentor/downloadEdUnits', { teacherId_list })
+                .then((result) => {
+                    const MENTEES_INFO = []
+                    const menteeEdUnits_list = result.data.menteeEdUnits_list
+                    menteeEdUnits_list.forEach(EdUnit => {
+                        let mentee = mentees_info_primary.find((elem) => elem.Id == EdUnit.teacherId)
+                        mentee.InfoEdUnits = EdUnit
+                        MENTEES_INFO.push(mentee)
+                    })
+                    context.commit('updateMenteeList', MENTEES_INFO)
                 })
                 .catch((error) => {
                     console.error(error);
@@ -36,7 +53,7 @@ export default {
             return state.MENTEE_LIST
         },
         getMenteeListWithFiltres: (state) => (filtres) => {
-            const { menteesOfShushlyakov, fioInclude, workDays } = filtres
+            const { menteesOfShushlyakov, disciplines, fioInclude, workDays, sortOfEdUnits } = filtres
             let filtredList = []
 
             filtredList = state.MENTEE_LIST.filter((elem) => {
@@ -45,9 +62,18 @@ export default {
 
                 let workDaysValue = Math.round((new Date() - new Date(elem.Created)) / 1000 / 60 / 60 / 24)
                 let check3 = workDaysValue >= workDays.min && workDaysValue <= workDays.max
-                
-                return check1 && check2 && check3
+
+                let check4 = elem.Disciplines.join(', ').includes(disciplines)
+
+                return check1 && check2 && check3 && check4
             })
+
+            if (sortOfEdUnits == 'asc') {
+                filtredList.sort((a, b) => a.InfoEdUnits.countAllEdUnits - b.InfoEdUnits.countAllEdUnits)
+            }
+            if (sortOfEdUnits == 'desc') {
+                filtredList.sort((a, b) => b.InfoEdUnits.countAllEdUnits - a.InfoEdUnits.countAllEdUnits)
+            }
 
             // console.log(filtredList);
 

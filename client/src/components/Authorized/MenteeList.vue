@@ -3,8 +3,15 @@
         <main class="wrapper">
             <MenteeCard @closeMenteeCard="selectedMentee = {}" v-if="selectedMentee.Id"
                 :selectedMentee="selectedMentee"></MenteeCard>
-            <!-- <EditUser @closeUserSettings="isOpenUserSettings = false" @downloadMentees="downloadMentees" v-if="isOpenUserSettings"
-                :selectedUser="this.selectedUser"></EditUser> -->
+
+            <transition name="notification">
+                <article class="notification" v-if="messages.error || messages.success">
+                    <p>🔔 Результат</p>
+                    <p class="small errorMessage">{{ messages.error }}</p>
+                    <p class="small successMessage">{{ messages.success }}</p>
+                </article>
+            </transition>
+
 
             <header>
                 <div>
@@ -12,30 +19,51 @@
                     <p>Найдено: {{ MENTEE_LIST.length }}</p>
                 </div>
 
-                <div class="filtres-wrapper">
-                    <button @click="filterStart()">Применить фильтры</button>
-                    <nav class="filtres">
+                <nav>
+                    <div class="filtres-wrapper">
+                        <img @click="getMentees()" class="likeButton icon" src="../../../public/img/delete.svg"
+                            title="Отменить фильтрацию" alt="Отмена">
+                        <button title="Настройка фильтров" @click="filterStart()">Применить фильтры</button>
+                        <div class="filtres">
 
-                        <div class="filtres__item">
-                            <p class="small">ФИО</p>
-                            <input type="text" v-model="filter.fioInclude" placeholder="Содержит...">
-                        </div>
-
-                        <label for="filter2" class="filtres__item">
-                            <p class="small">Ментор Шушляков Н</p>
-                            <input type="checkbox" id="filter2" v-model="filter.menteesOfShushlyakov">
-                        </label>
-
-                        <div class="filtres__item">
-                            <p class="small">Дней работает </p>
-                            <div id="filter3">
-                                <input type="text" placeholder="От" maxlength="3" v-model="filter.workDays.min">
-                                <input type="text" placeholder="До" maxlength="3" v-model="filter.workDays.max">
+                            <div class="filtres__item">
+                                <p class="small">ФИО</p>
+                                <input type="text" v-model="filter.fioInclude" placeholder="Содержит...">
                             </div>
-                        </div>
 
-                    </nav>
-                </div>
+                            <div class="filtres__item">
+                                <p class="small">Дисциплины</p>
+                                <input type="text" v-model="filter.disciplines" placeholder="Преподает...">
+                            </div>
+
+                            <div class="filtres__item">
+                                <p class="small">Количество учеников </p>
+                                <div id="filter3">
+                                    <label for="filter3_asc">↗️<input id="filter3_asc" type="radio" value="asc"
+                                            name="sortOfEdUnits" v-model="filter.sortOfEdUnits"></label>
+                                    <label for="filter3_desc">↘️<input id="filter3_desc" type="radio" value="desc"
+                                            name="sortOfEdUnits" v-model="filter.sortOfEdUnits"></label>
+                                </div>
+                            </div>
+
+                            <div class="filtres__item">
+                                <p class="small">Дней работает </p>
+                                <div id="filter4">
+                                    <input type="text" placeholder="От" maxlength="3" v-model="filter.workDays.min">
+                                    <input type="text" placeholder="До" maxlength="3" v-model="filter.workDays.max">
+                                </div>
+                            </div>
+
+                            <label for="filter5" class="filtres__item">
+                                <p class="small">Ментор Шушляков Н</p>
+                                <input type="checkbox" id="filter5" v-model="filter.menteesOfShushlyakov">
+                            </label>
+
+                        </div>
+                    </div>
+                    <button @click="uploadToDataBaseForTracking()"
+                        title="Отслеживать динамику с текущего момента">Загрузить в базу</button>
+                </nav>
 
             </header>
 
@@ -44,15 +72,22 @@
                     @click="this.selectedMentee = item">
                     <div>{{ index + 1 }}.</div>
                     <div>
-                        <p>{{ item.LastName }} {{ item.FirstName }}</p>
+                        <p>{{ item.LastName }}</p>
+                        <p>{{ item.FirstName }}</p>
                     </div>
                     <div>
                         <p>Контакты: {{ item.Phone }}</p>
                         <p>Email: {{ item.EMail }}</p>
                     </div>
                     <div>
+                        <p>Занятий за неделю: {{ item.InfoEdUnits.countAllEdUnits }}</p>
+                        <p>Постоянных учеников: {{ item.InfoEdUnits.countConstantUnits }}</p>
+                        <p>Пробников: {{ item.InfoEdUnits.countTrialUnits }}</p>
+                    </div>
+                    <div>
                         <p>Работает с: {{ formatDate(item.Created) }}</p>
                         <p>Всего: {{ numberWorkDays(item.Created) }} дней</p>
+                        <p>Дисциплин: {{ item.Disciplines.length }}</p>
                     </div>
                     <nav>
                         <p class="errorMessage"
@@ -75,6 +110,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import MenteeCard from './MenteeCard.vue';
 
 
@@ -83,27 +119,54 @@ export default {
     data() {
         return {
             MENTEE_LIST: [],
-            // isOpenAddUser: false,
-            // isOpenMenteeCard: false,
             selectedMentee: {},
 
             filter: {
-                // Временный фильтр
-                menteesOfShushlyakov: false,
+                menteesOfShushlyakov: false, // Временный фильтр
+                disciplines: '',
                 fioInclude: '',
+                gender: '',
+                sortOfEdUnits: '', // asc - desc
                 workDays: { min: 0, max: 360 }
+            },
+            messages: {
+                error: '',
+                success: ''
             }
         }
     },
-    async mounted() {
-        this.MENTEE_LIST = this.$store.getters.getMenteeList
-        console.log(this.MENTEE_LIST.length);
-        if (this.MENTEE_LIST.length == 0) {
-            await this.$store.dispatch('downloadMentees')
-            this.MENTEE_LIST = this.$store.getters.getMenteeList
-        }
+    mounted() {
+        this.getMentees()
     },
     methods: {
+        async uploadToDataBaseForTracking() {
+            await this.getMentees()
+
+            let DATALIST_FORTRACKING = []
+
+            this.MENTEE_LIST.forEach((mentee, index) => {
+                // Постоянные ученики, Пробные уроки, Завершенные модули
+                const { Disciplines, FirstName, LastName, Id, CountAllEdUnits, CountConstantUnits, CountTrialUnits } = mentee
+                let DATA_FORTRACKING = { Id, LastName, FirstName, Disciplines, CountAllEdUnits, CountConstantUnits, CountTrialUnits }
+                DATALIST_FORTRACKING.push(DATA_FORTRACKING)
+                // console.log(DATA_FORTRACKING);
+            })
+            // console.log(DATALIST_FORTRACKING.length);
+
+            await axios.post('/server/from-admin/uploadToDataBaseForTracking', { DATALIST_FORTRACKING })
+                .then((result) => { this.messages.success = result.data })
+                .catch((error) => { this.messages.error = error.response.data })
+
+            setTimeout(() => { this.messages = { error: '', success: '' } }, 3000)
+        },
+        async getMentees() {
+            this.filter = { menteesOfShushlyakov: false, disciplines: '', fioInclude: '', gender: '', sortOfEdUnits: '', workDays: { min: 0, max: 360 } }
+            this.MENTEE_LIST = this.$store.getters.getMenteeList
+            if (this.MENTEE_LIST.length == 0) {
+                await this.$store.dispatch('downloadMentees')
+                this.MENTEE_LIST = this.$store.getters.getMenteeList
+            }
+        },
         filterStart() {
             this.MENTEE_LIST = this.$store.getters.getMenteeListWithFiltres(this.filter)
         },
@@ -125,6 +188,11 @@ export default {
 </script>
 
 <style scoped>
+header nav {
+    display: flex;
+    gap: 10px;
+}
+
 .mentee {
     display: flex;
     flex-direction: column;
@@ -137,7 +205,7 @@ export default {
     border: 1px solid var(--color_accent_gray);
     padding: 10px;
     display: grid;
-    grid-template-columns: 30px 1fr 2fr 1fr 40px;
+    grid-template-columns: 30px 1fr 2fr 2fr 2fr 50px;
     align-items: center;
     overflow-wrap: anywhere;
     gap: 20px;
@@ -145,23 +213,44 @@ export default {
     cursor: pointer;
 }
 
+.mentee__item nav {
+    display: flex;
+    justify-content: end;
+    gap: 3px;
+}
+
 .mentee__item:hover {
     background-color: var(--color_background-4_white);
 }
 
-.mentee__item nav {
-    justify-self: end;
-    display: flex;
-    gap: 5px;
-}
-
 .filtres-wrapper {
     position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.filtres-wrapper button {
+    z-index: 5;
+}
+
+.likeButton {
+    margin-top: 10px;
+    margin-right: 10px;
+    padding: 3px;
+    transform: translate(30px);
+    opacity: 0;
+    transition-duration: 0.3s;
 }
 
 .filtres-wrapper:hover .filtres {
-    height: 200px;
+    height: 300px;
 }
+
+.filtres-wrapper:hover .likeButton {
+    transform: translate(0);
+    opacity: 1;
+}
+
 
 .filtres {
     position: absolute;
@@ -173,6 +262,7 @@ export default {
     flex-direction: column;
 
     right: 0;
+    top: 100%;
 
     border-radius: 10px 0 10px 10px;
     overflow: hidden;
@@ -199,6 +289,11 @@ export default {
 }
 
 #filter3 {
+    display: flex;
+    gap: 10px;
+}
+
+#filter4 {
     display: grid;
     grid-template-columns: repeat(2, 50px);
     gap: 10px;

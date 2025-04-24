@@ -20,6 +20,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/server/, '')
       },
+      '/crm': {
+        target: 'https://coddy.t8s.ru/',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/crm/, '')
+      },
       // '/socket.io':{
       //   target: 'http://localhost:4000',
       //   changeOrigin: true,

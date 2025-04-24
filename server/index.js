@@ -12,6 +12,9 @@ const log = require('./logs/log')
 const app = express()
 const PORT = 3000
 
+
+
+
 // Middlewares
 app.use(express.json()) // Для корректного чтения JSON
 app.use(cookieParser()) // Для корректного чтения Cookies
