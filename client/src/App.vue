@@ -50,9 +50,9 @@ main {
 }
 
 .notification{
-  position: absolute;
+  position: fixed;
   left: 0;
-  top: 10vh;
+  top: 12vh;
   background-color: var(--color_background-1_white);
   border-top: 2px solid var(--color_accent_darkBlue);
   border-bottom: 2px solid var(--color_accent_darkBlue);
@@ -60,6 +60,7 @@ main {
   border-radius: 0 10px 10px 0;
   width: 20vw;
   padding: 10px;
+  z-index: 100;
 }
 .notification p:first-child{
   color: var(--color_accent_darkBlue);

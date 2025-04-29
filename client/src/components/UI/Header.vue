@@ -3,6 +3,7 @@
         <h2 class="logo">Ментор CODDY</h2>
         <nav>
             <router-link class="link" to="/">Главная</router-link>
+            <router-link class="link" to="/mentor/mentee-summary">Сводка</router-link>
             <router-link class="link" to="/mentor/mentee-list">Менти</router-link>
             <router-link class="link" to="/mentor/users-list" v-if="currentUser.role=='admin'">Пользователи</router-link>
             <router-link class="link" to="/mentor/lk">Профиль</router-link>

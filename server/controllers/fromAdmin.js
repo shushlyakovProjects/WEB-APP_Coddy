@@ -6,6 +6,14 @@ const connectionDB = require('./connectionDB')
 const jwt = require('jsonwebtoken')
 const { SECRET_ACCESS_KEY } = require('../config')
 
+function getDateNow() {
+    const fullDate = new Date()
+    const year = fullDate.getFullYear()
+    const month = fullDate.getMonth() + 1 < 10 ? '0' + (fullDate.getMonth() + 1) : (fullDate.getMonth() + 1)
+    const day = fullDate.getDate() < 10 ? '0' + fullDate.getDate() : fullDate.getDate()
+    return `${year}-${month}-${day}`
+}
+
 
 router.use((request, response, next) => {
     const token = request.cookies.ACCESS_TOKEN
@@ -13,6 +21,28 @@ router.use((request, response, next) => {
         if (error) { response.status(401).send('Токен доступа недействителен') }
         else { request.dataFromChecking = decodeData; next() }
     })
+})
+
+router.post('/uploadToDataBaseForSummary', (request, response) => {
+    console.log('Загрузка сводки в базу...');
+    const { id, role } = request.dataFromChecking
+    const { data } = request.body
+
+    if (role == 'admin') {
+        const SQL_QUERY = `INSERT INTO summary (DateOfUpdate, CountOfMentee, СountOfNewEdUnits, СountOfNewTrials, CountOfMenteeWithConstantUnits, CountOfConstantUnits, CountOfPaidModules) 
+        VALUES ('${getDateNow()}', '${data.countOfMentee}','${data.countOfNewEdUnits}','${data.countOfNewTrials}','${data.countOfMenteeWithConstantUnits}','${data.countOfConstantUnits}','${data.countOfPaidModules}')`
+        connectionDB.query(SQL_QUERY, (error, result) => {
+            if (error) {
+                if (error.sqlMessage.includes('Duplicate')) { response.status(501).send('Данные сегодня уже загружались') }
+                else { response.status(500).send('Ошибка базы данных') }
+            }
+            else { response.status(200).send('Сводка загружена в базу успешно!') }
+        })
+
+    }
+    else {
+        response.status(403).send('Доступ запрещен!')
+    }
 })
 
 router.post('/uploadToDataBaseForTracking', (request, response) => {
@@ -41,15 +71,20 @@ router.post('/uploadToDataBaseForTracking', (request, response) => {
                         FirstName='${mentee.FirstName}',  
                         Disciplines='${mentee.Disciplines}', 
                         CountAllEdUnits='${mentee.CountAllEdUnits}', 
-                        CountTrialUnits='${mentee.CountTrialUnits}', 
-                        CountConstantUnits='${mentee.CountConstantUnits}' 
+                        CountTrialUnitsForWeek='${mentee.CountTrialUnitsForWeek}', 
+                        CountTrialLessonsForSixMonths='${mentee.CountTrialLessonsForSixMonths}', 
+                        CountConstantUnits='${mentee.CountConstantUnits}',
+                        LastUpdate='${getDateNow()}' 
                         WHERE Id='${mentee.Id}' AND 
                         (LastName<>'${mentee.LastName}' OR FirstName<>'${mentee.FirstName}' 
                         OR Disciplines<>'${mentee.Disciplines}' OR CountAllEdUnits<>'${mentee.CountAllEdUnits}' 
-                        OR CountTrialUnits<>'${mentee.CountTrialUnits}' OR CountConstantUnits<>'${mentee.CountConstantUnits}')`
+                        OR CountTrialUnitsForWeek<>'${mentee.CountTrialUnitsForWeek}' OR CountConstantUnits<>'${mentee.CountConstantUnits}'
+                        OR CountTrialLessonsForSixMonths<>'${mentee.CountTrialLessonsForSixMonths}')`
                     } else {
-                        SQL_QUERY = `INSERT INTO mentees (Id, LastName, FirstName, Disciplines, CountAllEdUnits, CountTrialUnits, CountConstantUnits) 
-                        VALUES ('${mentee.Id}', '${mentee.LastName}', '${mentee.FirstName}', '${mentee.Disciplines}', '${mentee.CountAllEdUnits}', '${mentee.CountTrialUnits}', '${mentee.CountConstantUnits}')`
+                        SQL_QUERY = `INSERT INTO mentees (Id, LastName, FirstName, Disciplines, CountAllEdUnits, 
+                        CountTrialUnitsForWeek, CountTrialLessonsForSixMonths, CountConstantUnits, LastUpdate) 
+                        VALUES ('${mentee.Id}', '${mentee.LastName}', '${mentee.FirstName}', '${mentee.Disciplines}', 
+                        '${mentee.CountAllEdUnits}', '${mentee.CountTrialUnitsForWeek}', '${mentee.CountTrialLessonsForSixMonths}', '${mentee.CountConstantUnits}', '${getDateNow()}')`
                     }
 
                     connectionDB.query(SQL_QUERY, (error, result) => {
@@ -161,5 +196,7 @@ router.post('/edit-user', (request, response) => {
     }
 
 })
+
+
 
 module.exports = router

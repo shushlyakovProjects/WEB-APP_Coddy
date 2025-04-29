@@ -40,11 +40,11 @@
                             </h2>
                         </div>
                         <div class="general">
-                            <p class="small"><b>Контактный номер:</b> <span>{{ selectedMentee.Mobile }}</span></p>
-                            <p class="small"><b>Email:</b> <span>{{ selectedMentee.EMail }}</span></p>
+                            <p><b>Контактный номер:</b> <span>{{ selectedMentee.Mobile || selectedMentee.Phone }}</span></p>
+                            <p><b>Email:</b> <span>{{ selectedMentee.EMail }}</span></p>
                             
-                            <p class="small bold">Дисциплины: ({{ selectedMentee.Disciplines.length }})</p>
-                            <p class="small marker">{{ selectedMentee.Disciplines.join(', ') }}</p>
+                            <p class="small bold">Дисциплины: ({{ selectedMentee.Disciplines != undefined ? selectedMentee.Disciplines.length : 0 }})</p>
+                            <p class="small marker">{{ selectedMentee.Disciplines != undefined ? selectedMentee.Disciplines.join(', ') : 'Не указаны' }}</p>
 
                             <p class="small bold">Адрес проживания: {{ selectedMentee.Address }}</p>
                             <p class="small marker">{{ selectedMentee.Address ? selectedMentee.Address : '❗️' }}</p>
@@ -87,7 +87,7 @@ export default {
     methods: {
         closeMenteeCard(event) {
             if (event.key == 'Escape' || event.target.classList[0] == 'menteeCard' || event.target.alt == 'Закрыть') {
-                this.$emit('closeMenteeCard');
+                this.$emit("closeMenteeCard");
                 window.removeEventListener('keydown', this.closeMenteeCard, { once: true })
             }
         },
@@ -145,6 +145,7 @@ nav {
     flex-direction: column;
     gap: 10px;
 }
+.fields__item-right{flex-grow: 1;}
 
 .fields__item-left>div,
 .fields__item-right>div {
