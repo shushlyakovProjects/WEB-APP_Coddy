@@ -5,7 +5,7 @@ const connectionDB = require('./connectionDB')
 
 
 const jwt = require('jsonwebtoken')
-const { SECRET_ACCESS_KEY, CRM_URL, authkey_getTeachers, authkey_getEdUnits } = require('../config')
+const { SECRET_ACCESS_KEY, CRM_URL, authkey_getTeachers, authkey_getEdUnits, authkey_googleTables } = require('../config')
 const axios = require('axios')
 
 // Проверка токена доступа
@@ -16,6 +16,14 @@ router.use((request, response, next) => {
         else { request.dataFromChecking = decodeData; next() }
     })
 })
+
+// router.post('////', async (request, response) => {
+//     console.log('Загрузка данных из Google Table');
+//     const { id, role } = request.dataFromChecking
+//     if (role == 'admin' || role == 'moderator') {
+        
+//     } else { { response.status(403).send('Доступ запрещен') } }
+// })
 
 
 router.post('/downloadSummaryFromDataBase', async (request, response) => {
@@ -116,6 +124,9 @@ router.post('/downloadMenteeData', async (request, response) => {
                             return IDs_MENTEES_LIST.includes(unit.ScheduleItems[0].TeacherId)
                         })
 
+                        let added_mentee = []
+                        let excluded_mentee = []
+
                         const SQL_QUERY = `SELECT * FROM mentees`
                         connectionDB.query(SQL_QUERY, (err, result) => {
                             if (err) { response.status(500).send('Ошибка базы данных') }
@@ -131,8 +142,11 @@ router.post('/downloadMenteeData', async (request, response) => {
                                         CountConstantUnits: 0,
                                     }
 
-                                    // Привязка к менти данных из локальной базы
-                                    mentee.PrevBrief = menteeFromDataBase.find((infoFromDB)=>{return infoFromDB.Id==mentee.Id})
+                                    // Определение новых менти
+                                    mentee.PrevBrief = menteeFromDataBase.find((infoFromDB) => { return infoFromDB.Id == mentee.Id })
+                                    if (mentee.PrevBrief == undefined) { added_mentee.push(mentee) }
+                                    if (mentee.PrevBrief != undefined) { menteeFromDataBase.splice(menteeFromDataBase.findIndex(menteeFromDB => menteeFromDB.Id == mentee.Id), 1) }
+
 
                                     // Перебор всех учебных единиц, распределение по разным менти
                                     ALL_UNITS_BY_MENTEES_LIST.forEach((unit) => {
@@ -147,10 +161,12 @@ router.post('/downloadMenteeData', async (request, response) => {
                                     mentee.InfoEdUnits = info_mentee_units
 
                                     if (index == MENTEES_LIST.length - 1) {
+                                        // Определение выпущенных менти 
+                                        excluded_mentee = menteeFromDataBase.filter(item => !added_mentee.includes(item))
                                         console.log('Учебные единицы получены успешно');
                                         const endTime = performance.now()
-                                        console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
-                                        response.status(200).json({ MENTEES_LIST })
+                                        console.log(`Call took ${endTime - startTime} milliseconds`)
+                                        response.status(200).json({ MENTEES_LIST, added_mentee, excluded_mentee })
                                     }
                                 })
                             }
@@ -161,7 +177,6 @@ router.post('/downloadMenteeData', async (request, response) => {
             .catch((error) => { response.status(523).send('API Hollihop недоступен') })
     } else { response.status(403).send('Доступ запрещен') }
 })
-
 
 // Редактирование профиля
 router.post('/edit-profile', (request, response) => {

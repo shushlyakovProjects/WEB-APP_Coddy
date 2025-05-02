@@ -11,7 +11,7 @@ function getDateNow() {
     const year = fullDate.getFullYear()
     const month = fullDate.getMonth() + 1 < 10 ? '0' + (fullDate.getMonth() + 1) : (fullDate.getMonth() + 1)
     const day = fullDate.getDate() < 10 ? '0' + fullDate.getDate() : fullDate.getDate()
-    return `${year}-${month}-${day}`
+    return `${day}-${month}-${year}`
 }
 
 

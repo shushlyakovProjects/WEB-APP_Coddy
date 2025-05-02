@@ -4,15 +4,6 @@
             <MenteeCard @closeMenteeCard="selectedMentee = {}" v-if="selectedMentee.Id"
                 :selectedMentee="selectedMentee"></MenteeCard>
 
-            <transition name="notification">
-                <article class="notification" v-if="messages.error || messages.success">
-                    <p>🔔 Уведомление</p>
-                    <p class="small errorMessage">{{ messages.error }}</p>
-                    <p class="small successMessage">{{ messages.success }}</p>
-                </article>
-            </transition>
-
-
 
             <header class="menteeList_header">
                 <div>
@@ -23,63 +14,69 @@
                 <!-- Фильтры -->
                 <nav>
                     <div class="filtres-wrapper">
-                        <img @click="getMenteeData()" class="likeButton icon" src="../../../public/img/delete.svg"
-                            title="Отменить фильтрацию" alt="Отмена">
+                        <transition name="filterBtn">
+                            <img @click="getMenteeData()" class="likeButton icon" src="../../../public/img/delete.svg"
+                                title="Очистить фильтры" alt="Отмена" v-show="filterIsOpen">
+                        </transition>
 
-                        <button title="Настройка фильтров" @click="filterStart()">Применить фильтры</button>
+                        <button title="Настройка фильтров" @click="filterIsOpen = !filterIsOpen">Фильтры</button>
 
-                        <div class="filtres">
-                            <div class="filtres__item">
-                                <p class="small">ФИО</p>
-                                <input type="text" v-model="filter.fioInclude" placeholder="Содержит...">
-                            </div>
-                            <div class="filtres__item">
-                                <p class="small">Дисциплины</p>
-                                <input type="text" v-model="filter.disciplines" placeholder="Преподает...">
-                            </div>
-                            <div class="filtres__item">
-                                <p class="small">Количество учеников </p>
-                                <div id="filter3">
-                                    <label for="filter3_asc">↗️<input id="filter3_asc" type="radio" value="asc"
-                                            name="sortOfEdUnits" v-model="filter.sortOfEdUnits"></label>
-                                    <label for="filter3_desc">↘️<input id="filter3_desc" type="radio" value="desc"
-                                            name="sortOfEdUnits" v-model="filter.sortOfEdUnits"></label>
+                        <transition name="filterForm">
+                            <form class="filtres" v-show="filterIsOpen" v-on:submit.prevent="filterStart()">
+                                <div class="filtres__item">
+                                    <p class="small">ФИО</p>
+                                    <input type="text" v-model="filter.fioInclude" placeholder="Содержит...">
                                 </div>
-                            </div>
-                            <div class="filtres__item">
-                                <p class="small">Длительность работы </p>
-                                <div id="filter4">
-                                    <label for="filter4_asc">↗️<input id="filter4_asc" type="radio" value="asc"
-                                            name="sortOfWorkTime" v-model="filter.sortOfWorkTime"></label>
-                                    <label for="filter4_desc">↘️<input id="filter4_desc" type="radio" value="desc"
-                                            name="sortOfWorkTime" v-model="filter.sortOfWorkTime"></label>
+                                <div class="filtres__item">
+                                    <p class="small">Дисциплины</p>
+                                    <input type="text" v-model="filter.disciplines" placeholder="Преподает...">
                                 </div>
-                            </div>
-                            <div class="filtres__item">
-                                <p class="small">Дней работает </p>
-                                <div id="filter5">
-                                    <input type="text" placeholder="От" maxlength="3" v-model="filter.workDays.min">
-                                    <input type="text" placeholder="До" maxlength="3" v-model="filter.workDays.max">
+                                <div class="filtres__item">
+                                    <p class="small">Количество учеников </p>
+                                    <div id="filter3">
+                                        <label for="filter3_asc">↗️<input id="filter3_asc" type="radio" value="asc"
+                                                name="sortOfEdUnits" v-model="filter.sortOfEdUnits"></label>
+                                        <label for="filter3_desc">↘️<input id="filter3_desc" type="radio" value="desc"
+                                                name="sortOfEdUnits" v-model="filter.sortOfEdUnits"></label>
+                                    </div>
                                 </div>
-                            </div>
-                            <label for="filter6" class="filtres__item">
-                                <p class="small">Ментор Шушляков Н</p>
-                                <input type="checkbox" id="filter6" v-model="filter.menteesOfShushlyakov">
-                            </label>
-                            <label for="filter7" class="filtres__item">
-                                <p class="small">Подсветка</p>
-                                <input type="checkbox" id="filter7" v-model="filter.backLight">
-                            </label>
-                        </div>
+                                <div class="filtres__item">
+                                    <p class="small">Длительность работы </p>
+                                    <div id="filter4">
+                                        <label for="filter4_asc">↗️<input id="filter4_asc" type="radio" value="asc"
+                                                name="sortOfWorkTime" v-model="filter.sortOfWorkTime"></label>
+                                        <label for="filter4_desc">↘️<input id="filter4_desc" type="radio" value="desc"
+                                                name="sortOfWorkTime" v-model="filter.sortOfWorkTime"></label>
+                                    </div>
+                                </div>
+                                <div class="filtres__item">
+                                    <p class="small">Дней работает </p>
+                                    <div id="filter5">
+                                        <input type="text" placeholder="От" maxlength="3" v-model="filter.workDays.min">
+                                        <input type="text" placeholder="До" maxlength="3" v-model="filter.workDays.max">
+                                    </div>
+                                </div>
+                                <label for="filter6" class="filtres__item">
+                                    <p class="small">Ментор Шушляков Н</p>
+                                    <input type="checkbox" id="filter6" v-model="filter.menteesOfShushlyakov">
+                                </label>
+                                <label for="filter7" class="filtres__item">
+                                    <p class="small">Подсветка</p>
+                                    <input type="checkbox" id="filter7" v-model="filter.backLight">
+                                </label>
+
+                                <input type="submit" value="Применить">
+                            </form>
+                        </transition>
+
 
                     </div>
                     <button @click="uploadToDataBaseForTracking()" id="btn_uploadToDataBaseForTracking"
-                        title="Отслеживать динамику с текущего момента" :data-lastupdate="MENTEE_LIST[0] == undefined ? 'Загрузка...' :
-                            `Последняя загрузка ${MENTEE_LIST[0].PrevBrief.LastUpdate}`">Загрузить
+                        title="Отслеживать динамику с текущего момента"
+                        :data-lastupdate="lastUpdate ? `Посл загр ${lastUpdate}` : `Загрузка...`">Загрузить
                         в базу</button>
-                    <button @click="getEveryTrialLesson()" title="Получить все проведенные пробные уроки за полгода"
-                        v-if="MENTEE_LIST.length != 0">Получить
-                        все ПУ</button>
+                    <button @click=" getEveryTrialLesson()" title="Получить все проведенные пробные уроки за полгода"
+                        v-if="MENTEE_LIST.length != 0">Получить ПУ за полгода</button>
                 </nav>
             </header>
 
@@ -93,7 +90,7 @@
                     </div>
                     <div>
                         <p class="small">Работает с: {{ formatDate(item.Created) }}</p>
-                        <p class="small">Всего: {{ numberWorkDays(item.Created) }} дней</p>
+                        <p class="small">Всего: {{ getNumberWorkDays(item.Created) }} дней</p>
                     </div>
                     <div>
                         <p class="small" :class="getBackLight(item.InfoEdUnits.CountTrialUnitsForWeek)">
@@ -151,7 +148,9 @@ export default {
         return {
             MENTEE_LIST: [],
             selectedMentee: {},
+            lastUpdate: '',
 
+            filterIsOpen: false,
             filter: {
                 menteesOfShushlyakov: false, // Временный фильтр
                 disciplines: '',
@@ -162,28 +161,32 @@ export default {
                 workDays: { min: 0, max: 360 },
                 backLight: false
             },
-            messages: {
-                error: '',
-                success: ''
-            }
         }
     },
-    computed: { ...mapGetters(['getMenteeList', 'getMessages']) },
+    computed: { ...mapGetters(['getMenteeList']) },
     watch: {
-        getMenteeList() { this.MENTEE_LIST = this.getMenteeList },
-        getMessages: {
-            handler() { this.messages = this.getMessages },
-            deep: true
+        getMenteeList() {
+            this.MENTEE_LIST = this.getMenteeList
+        },
+        MENTEE_LIST() {
+            if (this.MENTEE_LIST.length) { this.lastUpdate = this.MENTEE_LIST.find(mentee => mentee.hasOwnProperty("PrevBrief")).PrevBrief.LastUpdate }
         }
     },
     mounted() {
         this.getMenteeData()
         const header = document.querySelector('.menteeList_header')
-        window.addEventListener('scroll', (event) => {
+        document.addEventListener('scroll', (event) => {
             if (window.scrollY > 50) {
                 if (!header.classList.contains('header__inScrolling')) { header.classList.add('header__inScrolling') }
             } else {
                 if (header.classList.contains('header__inScrolling')) { header.classList.remove('header__inScrolling') }
+            }
+        })
+        document.addEventListener('click', (e) => {
+            if (this.filterIsOpen) {
+                if (!e.target.closest('.filtres-wrapper')) {
+                    this.filterIsOpen = false
+                }
             }
         })
     },
@@ -193,7 +196,6 @@ export default {
             await this.$store.dispatch('uploadToDataBaseForTracking', this.MENTEE_LIST)
         },
         async getEveryTrialLesson() {
-            this.messages = { success: 'Загрузка...' }
             await this.$store.dispatch('downloadEveryTrialLesson', this.MENTEE_LIST)
         },
         async getMenteeData() {
@@ -211,7 +213,7 @@ export default {
             const year = date.getFullYear()
             return `${day}.${month}.${year}`
         },
-        numberWorkDays(origDate) {
+        getNumberWorkDays(origDate) {
             const date = new Date(origDate)
             const now = new Date()
             const numberWorkDays = Math.round((now - date) / 1000 / 60 / 60 / 24)
@@ -224,8 +226,8 @@ export default {
                 else if (info >= 5) { return 'backlight_green-1' }
             }
         },
-        getDifference(oldVal = 0, newVal = 0) {
-            return (newVal - oldVal) >= 0 ? '+' + (newVal - oldVal) : (newVal - oldVal)
+        getDifference(dataNow = 0, dataOld = 0) {
+            return (dataNow - dataOld) >= 0 ? '+' + (dataNow - dataOld) : (dataNow - dataOld)
         },
     },
 }
@@ -282,6 +284,8 @@ header nav {
     background-color: var(--color_background-4_white);
 }
 
+
+/* Настройка фильтров */
 .filtres-wrapper {
     position: relative;
     display: flex;
@@ -292,12 +296,11 @@ header nav {
     z-index: 5;
 }
 
-.likeButton {
+.filtres-wrapper .likeButton {
     margin-top: 10px;
     margin-right: 10px;
     padding: 3px;
-    transform: translate(30px);
-    opacity: 0;
+    opacity: 0.7;
     transition-duration: 0.3s;
 }
 
@@ -313,14 +316,16 @@ header nav {
 
     right: 0;
     top: 100%;
+    transform: translateY(5px);
 
     border-radius: 10px 0 10px 10px;
     overflow: hidden;
-    transition-duration: 0.5s;
     width: 30vw;
-    height: 0;
+    height: auto;
+}
 
-    z-index: 10;
+.filtres input[type="submit"] {
+    border-radius: 0 0 10px 10px;
 }
 
 .filtres__item {
@@ -334,26 +339,32 @@ header nav {
     margin: 5px;
 }
 
-.filtres-wrapper:hover .likeButton,
-.filtres-wrapper:focus .likeButton {
-    transform: translate(0);
-    opacity: 1;
+
+/* Настройка анимации в блоке фильтров */
+.filterBtn-enter-active,
+.filterBtn-leave-active,
+.filterForm-enter-active,
+.filterForm-leave-active {
+    transition-duration: 0.2s;
+    transition-timing-function: ease-in-out;
 }
 
-.filtres-wrapper:hover .filtres,
-.filtres-wrapper:focus .filtres {
-    height: auto;
+.filterBtn-enter-from,
+.filterBtn-leave-to {
+    transform: translateX(30px);
+    opacity: 0;
+}
+
+.filterForm-enter-from,
+.filterForm-leave-to {
+    transform: translateY(-20px);
+    opacity: 0;
 }
 
 
 
-
-
-
-
-
+/* Настройка кнопки загрузки в БД */
 #btn_uploadToDataBaseForTracking {
-    background-color: red;
     position: relative;
 }
 
@@ -362,12 +373,14 @@ header nav {
     position: absolute;
     text-align: center;
     width: 100%;
-    height: 100%;
+    height: auto;
     left: 0;
     top: 0;
     z-index: -1;
+    font-size: 10px;
     transition-duration: 0.2s;
     color: var(--color_accent_darkBlue);
+    padding-bottom: 5px;
 }
 
 #btn_uploadToDataBaseForTracking:hover::before {
@@ -376,6 +389,7 @@ header nav {
 
 
 
+/* Настройка пунктов фильтра */
 #filter3,
 #filter4 {
     display: grid;
@@ -394,6 +408,7 @@ header nav {
 }
 
 
+/* Раскраска */
 .backlight_red-1 {
     background-color: rgb(219, 188, 188);
 }

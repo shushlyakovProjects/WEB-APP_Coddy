@@ -3,6 +3,15 @@ import axios from 'axios';
 
 export default {
     actions: {
+        // async downloadInfoFromsss(context) {
+        //     await axios.post('/server/from-mentor/downloadInfoFromGoogleTable')
+        //         .then((result) => {
+        //             console.log(result);
+        //         })
+        //         .catch((error) => {
+        //             console.log(error);
+        //         })
+        // },
         async downloadSummaryFromDataBase(context) {
             context.commit('updateMessageSuccess', { info: 'Загрузка предыдущей сводки...', isReady: false })
             await axios.post('/server/from-mentor/downloadSummaryFromDataBase')
@@ -19,7 +28,7 @@ export default {
     mutations: {
         updatePreviousSummary(state, newInfo) {
             state.PREVIOUS_SUMMARY = newInfo[0]
-            this.commit('updateMessageSuccess', { info: 'Информация получена!', isReady: true })
+            this.commit('updateMessageSuccess', { info: 'Предыдущая сводка получена успешно!', isReady: true })
         },
         updateMessageError(state, info) {
             this.commit('updateMessageSuccess', { info: '', isReady: true })

@@ -2,18 +2,9 @@
     <div>
         <main class="wrapper">
 
-            <transition name="notification">
-                <article class="notification" v-if="messages.error || messages.success">
-                    <p>🔔 Уведомление</p>
-                    <p class="small errorMessage">{{ messages.error }}</p>
-                    <p class="small successMessage">{{ messages.success }}</p>
-                </article>
-            </transition>
-
             <header ref="summary_header">
                 <div>
                     <h2>Сводка (Ментор = Шушляков Н)</h2>
-                    <p>Прошла сводка: {{ getPreviousSummary.DateOfUpdate }}</p>
                 </div>
 
                 <nav>
@@ -22,38 +13,68 @@
             </header>
 
             <div class="summary_wrapper">
-                <div class="summary__card">
-                    <p>Всего менти на данный момент: {{ fields.countOfMentee }}</p>
+
+                <div class="summary_wrapper-flex">
+                    <div class="summary__card">
+                        <h3>Общая информация:</h3>
+                        <p>Предыдущая сводка: {{ getPreviousSummary.DateOfUpdate }}</p>
+                        <p>Всего менти на данный момент: {{ fields.countOfMentee }}</p>
+                        <p>Всего постоянных учеников: {{ fields.countOfConstantUnits }}</p>
+                    </div>
+                    <div class="summary__card">
+                        <h3>С последней загрузки (еженедельная)</h3>
+                        <p>Менти новых: {{ getAddedMenteeList.length }}</p>
+                        <p>Получено учеников: {{
+                            getDifference(getPreviousSummary.CountOfConstantUnits, fields.countOfConstantUnits ) }}
+                        </p>
+                        <p>Проведено пробников: {{ fields.countOfNewTrials -
+                            getPreviousSummary.СountOfNewTrials }}
+                        </p>
+                        <p>Отправлено модулей с прошлой недели: {{ getPreviousSummary.CountOfPaidModules }}</p>
+                    </div>
+                    <div class="summary_before">
+                        <h3>Дополнительно</h3>
+                        <p>Всего отправлено модулей на проверку: {{ fields.countOfPaidModules }}</p>
+                    </div>
                 </div>
 
-                <div class="summary__card">
-                    <h3>С последней загрузки</h3>
-                    <p>Менти новых: {{ getDifference(getPreviousSummary.CountOfMentee, fields.countOfMentee) }}</p>
-                    <p>Менти исключено: НУЖНО СРАВНИВАТЬ текущих менти с тем, КТО ОТСУТСВУЕТ С ПРОШЛОЙ ЗАГРУЗКИ В
-                        ТАБЛИЦУ mentees</p>
-                    <p>Получено учеников: {{ fields.countOfNewEdUnits - getPreviousSummary.СountOfNewEdUnits }}</p>
-                    <p>Проведено пробников: {{ fields.countOfNewTrials - getPreviousSummary.СountOfNewTrials }}</p>
+                <div class="summary_wrapper-flex">
+                    <div class="summary__card">
+                        <h3>Количество менти</h3>
+                        <p>С постоянными учениками: {{ fields.countOfMenteeWithConstantUnits }}</p>
+                        <p>Без постоянных учеников: {{ fields.countOfMenteeWithoutConstantUnits }}</p>
+                        <!-- <p>Получили постоянных учеников: {{ fields.countOfMenteeWithConstantUnits -
+                            getPreviousSummary.CountOfMenteeWithConstantUnits > 0 ?
+                            fields.countOfMenteeWithConstantUnits -
+                            getPreviousSummary.CountOfMenteeWithConstantUnits : 0 }}
+                        </p> -->
+                        <p>Занятых: {{ (fields.countOfMenteeWithConstantUnits / fields.countOfMentee *
+                            100).toFixed(2) }}%
+                        </p>
+                    </div>
+                    <div class="summary__card">
+                        <h3>Менти прибывшие:</h3>
+                        <p v-for="(item, index) in getAddedMenteeList">* {{ item.LastName }} {{ item.FirstName }}
+                            <a :href='`https://coddy.t8s.ru/Profile/${item.Id}`' target="_blank">CRM</a>
+                        </p>
+                    </div>
+
+                    <div class="summary__card">
+                        <h3>Менти завершившие:</h3>
+                        <p v-for="(item, index) in getExcludedMenteeList">* {{ item.LastName }} {{ item.FirstName }}
+                            <a :href='`https://coddy.t8s.ru/Profile/${item.Id}`' target="_blank">CRM</a>
+                        </p>
+                    </div>
+
+                    <div class="loading" v-if="!fields.countOfMentee"></div>
                 </div>
 
-                <div class="summary__card">
-                    <h3>Количество менти</h3>
-                    <p>С постоянными учениками: {{ fields.countOfMenteeWithConstantUnits }}</p>
-                    <p>Без постоянных учеников: {{ fields.countOfMenteeWithoutConstantUnits }}</p>
-                    <p>Получили постоянных учеников: {{ getPreviousSummary.CountOfMenteeWithConstantUnits -
-                        fields.countOfMenteeWithConstantUnits}}
-                    </p>
-                    <p>Занятых: {{ (fields.countOfMenteeWithConstantUnits / fields.countOfMentee * 100).toFixed(2) }}%
-                    </p>
-                </div>
+            </div>
 
-                <div class="summary_before">
-                    <h3>Дополнительно</h3>
-                    <p>Всего постоянных учеников: {{ fields.countOfConstantUnits }}</p>
-                    <p>Всего отправлено модулей на проверку: {{ fields.countOfPaidModules }}</p>
-                    <P>Отправлено модулей на прошлую неделю: {{ getPreviousSummary.CountOfPaidModules }}</P>
-
-                </div>
-
+            <div class="test">
+                <h2>Обратная связь</h2>
+                <h3>Создать форму для сбора обратной связи с менти</h3>
+                <!-- <button @click="getInfoFromGoogleTable()">Отправить запрос в Google Table</button> -->
             </div>
 
         </main>
@@ -82,11 +103,6 @@ export default {
                 countOfConstantUnits: 0,
                 countOfPaidModules: 0,
             },
-
-            messages: {
-                error: '',
-                success: ''
-            }
         }
     },
     mounted() {
@@ -94,14 +110,16 @@ export default {
         this.updateFields()
         this.getSummaryFromDataBase()
     },
-    computed: { ...mapGetters(['getMenteeListOnlyShushlyakov', 'getMessages', 'getPreviousSummary']) },
+    computed: { ...mapGetters(['getMenteeListOnlyShushlyakov', 'getPreviousSummary', 'getAddedMenteeList', 'getExcludedMenteeList']) },
     watch: {
         getMenteeListOnlyShushlyakov() { this.updateFields() },
-        getMessages: { handler() { this.messages = this.getMessages }, deep: true }
     },
     methods: {
+        // getInfoFromGoogleTable(){
+        //     this.$store.dispatch('downloadInfoFromGoogleTable')
+        // },
         getSummaryFromDataBase() {
-            this.$store.dispatch('downloadSummaryFromDataBase')
+            if (this.getPreviousSummary.length == 0) { this.$store.dispatch('downloadSummaryFromDataBase') }
         },
         uploadToDataBaseForSummary() {
             const { countOfMentee, countOfNewEdUnits, countOfNewTrials, countOfMenteeWithConstantUnits, countOfConstantUnits, countOfPaidModules } = this.fields
@@ -114,6 +132,9 @@ export default {
 
             // this.fields.countOfNewMentee = 0
             // this.fields.countOfNewEdUnits = 0
+
+            // let LIST_PREV_SUMMARY = new Map(Object.entries(this.getPreviousSummary))
+            // console.log(LIST_PREV_SUMMARY);
 
             this.fields.countOfConstantUnits = 0
             this.fields.countOfNewTrials = 0
@@ -154,6 +175,11 @@ export default {
 }
 
 .summary_wrapper {
+    display: flex;
+    gap: 120px;
+}
+
+.summary_wrapper-flex {
     display: flex;
     flex-direction: column;
     gap: 20px;

@@ -6,14 +6,23 @@ export default {
         async downloadMenteeData(context) {
             this.commit('updateMessageSuccess', { info: 'Загрузка данных...', isReady: false })
             await axios.post('/server/from-mentor/downloadMenteeData')
-                .then((result) => { context.commit('updateMenteeList', result.data.MENTEES_LIST) })
+                .then((result) => {
+                    // console.log(result);
+                    context.commit('updateAddedMenteeList', result.data.added_mentee)
+                    context.commit('updateExcludedMenteeList', result.data.excluded_mentee)
+                    context.commit('updateMenteeList', result.data.MENTEES_LIST)
+                })
                 .catch((error) => { context.commit('updateMessageError', error.response.data) })
         },
         async downloadEveryTrialLesson(context, MENTEE_LIST) {
+            this.commit('updateMessageSuccess', { info: 'Загрузка ПУ...', isReady: false })
             const IDs_MENTEES_LIST = []
             MENTEE_LIST.forEach((item) => { IDs_MENTEES_LIST.push(item.Id) })
             await axios.post('/server/from-mentor/downloadEveryTrialLesson', { IDs_MENTEES_LIST })
-                .then((result) => { context.commit('addTrialLessonsToMenteeList', result.data.TRIALS_LIST) })
+                .then((result) => {
+                    context.commit('updateMessageSuccess', 'Данные получены успешно!')
+                    context.commit('addTrialLessonsToMenteeList', result.data.TRIALS_LIST)
+                })
                 .catch((error) => { context.commit('updateMessageError', error.response.data) })
         },
         async uploadToDataBaseForTracking(context, MENTEE_LIST) {
@@ -62,10 +71,15 @@ export default {
         updateMessageSuccess(state, { info, isReady }) {
             state.messages.success = info
             if (isReady) { setTimeout(() => { state.messages.success = '' }, 3000) }
-        }
+        },
+        updateAddedMenteeList(state, newData) { state.ADDED_MENTEE_LIST = newData },
+        updateExcludedMenteeList(state, newData) { state.EXCLUDED_MENTEE_LIST = newData },
     },
     state: {
         MENTEE_LIST: [],
+
+        ADDED_MENTEE_LIST: [],
+        EXCLUDED_MENTEE_LIST: [],
 
         messages: {
             error: '',
@@ -78,6 +92,8 @@ export default {
     },
     getters: {
         getMessages(state) { return state.messages },
+        getAddedMenteeList(state) { return state.ADDED_MENTEE_LIST },
+        getExcludedMenteeList(state) { return state.EXCLUDED_MENTEE_LIST },
         getMenteeList(state) { return state.MENTEE_LIST },
         getMenteeListWithFiltres: (state) => (filtres) => {
             const { menteesOfShushlyakov, disciplines, fioInclude, workDays, sortOfEdUnits, sortOfWorkTime } = filtres
@@ -85,7 +101,7 @@ export default {
 
             filtredList = state.MENTEE_LIST.filter((elem) => {
                 let check1 = menteesOfShushlyakov ? !state.menteesIsNotOfShushlyakov.includes(elem.LastName) : state.menteesIsNotOfShushlyakov.includes(elem.LastName)
-                let check2 = `${elem.LastName} ${elem.FirstName}`.includes(fioInclude)
+                let check2 = `${elem.LastName} ${elem.FirstName}`.toLowerCase().includes(fioInclude.toLowerCase())
 
                 let workDaysValue = Math.round((new Date() - new Date(elem.Created)) / 1000 / 60 / 60 / 24)
                 let check3 = workDaysValue >= workDays.min && workDaysValue <= workDays.max

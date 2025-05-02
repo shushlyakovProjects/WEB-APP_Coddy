@@ -3,6 +3,15 @@
 
     <Header v-if="getCurrentUser.user_id" :currentUser="getCurrentUser"></Header>
 
+    <transition name="notification">
+      <article class="notification" v-if="messages.error || messages.success">
+        <p>🔔 Уведомление</p>
+        <p class="small errorMessage">{{ messages.error }}</p>
+        <p class="small successMessage">{{ messages.success }}</p>
+      </article>
+    </transition>
+
+
     <router-view id="router-view"></router-view>
 
   </div>
@@ -13,9 +22,20 @@ import { mapGetters } from 'vuex';
 import Header from './components/UI/Header.vue';
 
 export default {
+  data() {
+    return {
+      messages: {
+        error: '',
+        success: ''
+      }
+    }
+  },
   components: { Header },
   mounted() { this.$store.dispatch('checkAuthorization', this.$router) },
-  computed: { ...mapGetters(['getCurrentUser']) },
+  computed: { ...mapGetters(['getCurrentUser', 'getMessages']) },
+  watch: {
+    getMessages: { handler() { this.messages = this.getMessages }, deep: true }
+  }
 }
 </script>
 
@@ -35,7 +55,7 @@ main {
   padding: 30px 60px;
 }
 
-.loading{
+.loading {
   width: 20px;
   height: 20px;
   border-radius: 30%;
@@ -44,12 +64,26 @@ main {
 }
 
 @keyframes loading {
-  0%{transform: translateX(0px) rotate(0deg);border-radius: 50%; opacity: 0;}
-  50%{transform: translateX(50px) rotate(135deg); border-radius: 0; opacity: 1;}
-  100%{transform: translateX(100px) rotate(300deg);border-radius: 50%; opacity: 0;}
+  0% {
+    transform: translateX(0px) rotate(0deg);
+    border-radius: 50%;
+    opacity: 0;
+  }
+
+  50% {
+    transform: translateX(50px) rotate(135deg);
+    border-radius: 0;
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(100px) rotate(300deg);
+    border-radius: 50%;
+    opacity: 0;
+  }
 }
 
-.notification{
+.notification {
   position: fixed;
   left: 0;
   top: 12vh;
@@ -62,17 +96,18 @@ main {
   padding: 10px;
   z-index: 100;
 }
-.notification p:first-child{
+
+.notification p:first-child {
   color: var(--color_accent_darkBlue);
 }
 
 .notification-enter-active,
-.notification-leave-active{
+.notification-leave-active {
   transition-duration: 0.3s;
 }
+
 .notification-enter-from,
-.notification-leave-to{
+.notification-leave-to {
   transform: translateX(-100%);
 }
-
 </style>
