@@ -57,7 +57,9 @@ li {
 
 button,
 input,
-select {
+select,
+textarea {
+    resize: none;
     box-shadow: none;
     border: none;
     outline: none;
@@ -72,6 +74,7 @@ select option[value=''] {
 }
 
 input[type='submit'],
+input[type='reset'],
 button {
     cursor: pointer;
     background: var(--color_accent_lightBlue);
@@ -79,6 +82,7 @@ button {
     margin-top: 10px;
 }
 
+input[type='reset']:hover,
 input[type='submit']:hover,
 button:hover {
     background: var(--color_accent_darkBlue);
@@ -100,11 +104,11 @@ p.small {
     font-size: var(--size_textDesktop_body-2)
 }
 
-.errorMessage {
+.error_message {
     color: rgb(244, 111, 111);
 }
 
-.successMessage {
+.success_message {
     color: rgb(54, 184, 54);
 }
 

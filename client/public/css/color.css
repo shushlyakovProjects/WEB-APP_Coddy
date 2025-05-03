@@ -17,5 +17,5 @@
     --color_gradient_darkBlue: linear-gradient(175deg, #0093B5, #00384F);
     --color_gradient_lightBlue: linear-gradient(90deg, #5CB8CE, #5DD3EE, #0093B5);
     --color_gradient_orange: linear-gradient(-45deg, #EA4400, #FF6600, #FFD900);
-    --color_gradient_pink: linear-gradient(0deg, #FF16A3, #FF93D5, #FF16A3);
+    --color_gradient_pink: linear-gradient(20deg, #FF16A3, #FF93D5, #FF16A3);
 }

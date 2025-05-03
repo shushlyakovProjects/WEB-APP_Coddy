@@ -9,12 +9,14 @@ import Profile from './components/Authorized/Profile.vue'
 import UsersList from './components/Authorized/UsersList.vue'
 import MenteeList from './components/Authorized/MenteeList.vue'
 import MenteeSummary from './components/Authorized/MenteeSummary.vue'
+import Feedback from './components/NotAuthorized/Feedback.vue'
 // import EditAdmin from './components/EditAdmin.vue'
 // import RegistrationAdmin from './components/RegistrationAdmin.vue'
 
 const routes = [
     { path: '/', component: Main },
     { path: '/auth', component: Authorization },
+    { path: '/mentee/feedback', component: Feedback },
     { path: '/mentor/lk', component: Profile },
     { path: '/mentor/users-list', component: UsersList },
     { path: '/mentor/mentee-list', component: MenteeList },

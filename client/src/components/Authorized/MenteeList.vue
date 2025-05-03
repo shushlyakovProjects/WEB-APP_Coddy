@@ -246,7 +246,7 @@ export default {
 
 .header__inScrolling {
     background-color: var(--color_background-2_white);
-    z-index: 10;
+    z-index: 5;
     padding: 10px;
 }
 

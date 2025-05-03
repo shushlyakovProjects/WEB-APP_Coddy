@@ -11,7 +11,6 @@
       </article>
     </transition>
 
-
     <router-view id="router-view"></router-view>
 
   </div>
@@ -31,7 +30,12 @@ export default {
     }
   },
   components: { Header },
-  mounted() { this.$store.dispatch('checkAuthorization', this.$router) },
+  mounted() {
+    const url = `/${document.URL.split('/').at(-2)}/${document.URL.split('/').at(-1)}`
+    if (url != '/mentee/feedback') {
+      this.$store.dispatch('checkAuthorization', this.$router)
+    }
+  },
   computed: { ...mapGetters(['getCurrentUser', 'getMessages']) },
   watch: {
     getMessages: { handler() { this.messages = this.getMessages }, deep: true }

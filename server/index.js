@@ -6,6 +6,7 @@ const { registration } = require('./controllers/registration')
 const { authorization } = require('./controllers/authorization')
 const adminController = require('./controllers/fromAdmin')
 const mentorController = require('./controllers/fromMentor')
+const menteeController = require('./controllers/fromMentee')
 const connectionDB = require('./controllers/connectionDB')
 const log = require('./logs/log')
 
@@ -27,6 +28,7 @@ app.post('/registration', registration)
 app.post('/authorization', authorization)
 app.use('/from-admin', adminController)
 app.use('/from-mentor', mentorController)
+app.use('/from-mentee', menteeController)
 
 // Базоый путь, индикатор активности
 app.get('/', (request, response) => {
