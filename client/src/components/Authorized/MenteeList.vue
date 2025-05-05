@@ -61,7 +61,7 @@
                                     <input type="checkbox" id="filter6" v-model="filter.menteesOfShushlyakov">
                                 </label>
                                 <label for="filter7" class="filtres__item">
-                                    <p class="small">Подсветка</p>
+                                    <p class="small">Раскраска</p>
                                     <input type="checkbox" id="filter7" v-model="filter.backLight">
                                 </label>
 
@@ -408,28 +408,5 @@ header nav {
 }
 
 
-/* Раскраска */
-.backlight_red-1 {
-    background-color: rgb(219, 188, 188);
-}
 
-.backlight_red-2 {
-    background-color: rgb(206, 122, 122);
-}
-
-.backlight_yellow-1 {
-    background-color: rgb(228, 219, 148);
-}
-
-.backlight_yellow-2 {
-    background-color: rgb(200, 200, 63);
-}
-
-.backlight_green-1 {
-    background-color: rgb(163, 211, 151);
-}
-
-.backlight_green-2 {
-    background-color: rgb(93, 200, 77);
-}
 </style>

@@ -2,8 +2,8 @@
     <div>
         <main class="wrapper">
             <AddUser @closeAddUser="isOpenAddUser = false" v-if="isOpenAddUser"></AddUser>
-            <EditUser @closeUserSettings="isOpenUserSettings = false" @downloadUsers="downloadUsers" v-if="isOpenUserSettings"
-                :selectedUser="this.selectedUser"></EditUser>
+            <EditUser @closeUserSettings="isOpenUserSettings = false" @downloadUsers="downloadUsers"
+                v-if="isOpenUserSettings" :selectedUser="this.selectedUser"></EditUser>
 
             <header>
                 <h2>Пользователи</h2>
@@ -14,23 +14,28 @@
             </header>
 
             <div class="users">
-                <div class="users__item" v-for="(item, index) in USERS_LIST" :key="index">
-                    <div><p>{{ item.last_name }} {{ item.first_name }}</p></div>
+                <div class="users__item" v-for="(item, index) in getUsersList" :key="index">
                     <div>
-                        <p>Контакты: {{ item.phone_number }}</p>
-                        <p>Email: {{ item.email }}</p>
+                        <p>{{ item.LastName }} {{ item.FirstName }}</p>
                     </div>
                     <div>
-                        <p>Статус: {{ item.role }}</p>
+                        <p>Контакты: {{ item.Phone }}</p>
+                        <p>Email: {{ item.Email }}</p>
+                    </div>
+                    <div>
+                        <p>Статус: {{ item.Role }}</p>
                     </div>
                     <nav>
-                        <img class="icon" src="../../../public/img/settings.svg" alt="Настройки" v-if="item.role!='admin'"
-                            title="Найстройки пользователя"
+                        <img class="icon" src="../../../public/img/settings.svg" alt="Настройки"
+                            v-if="item.Role != 'admin'" title="Найстройки пользователя"
                             @click="this.isOpenUserSettings = true; this.selectedUser = item">
+                        <img class="icon" src="../../../public/img/delete.svg" alt="Удалить"
+                            v-if="item.Role != 'admin'" title="Удалить пользователя"
+                            @click="deleteUser(item)">
                     </nav>
                 </div>
 
-                <div class="loading" v-if="!USERS_LIST.length"></div>
+                <div class="loading" v-if="!getUsersList.length"></div>
             </div>
 
         </main>
@@ -38,32 +43,27 @@
 </template>
 
 <script>
-import axios from 'axios';
 import AddUser from './AddUser.vue';
 import EditUser from './EditUser.vue';
+import { mapGetters } from 'vuex';
 
 export default {
     components: { AddUser, EditUser },
     data() {
         return {
-            USERS_LIST: [],
             isOpenAddUser: false,
             isOpenUserSettings: false,
             selectedUser: {}
         }
     },
+    computed: { ...mapGetters(['getUsersList']) },
     mounted() {
-        this.downloadUsers()
+        this.$store.dispatch('downloadUsers')
     },
     methods: {
-        async downloadUsers() {
-            await axios.post('/server/from-admin/downloadUsers')
-                .then((result) => {
-                    this.USERS_LIST = result.data
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
+        deleteUser(user){
+            const {UserName, UserId} = user
+            // if(confirm(`Вы хотите удалить пользователя: "${}"`))
         }
     },
 }
@@ -85,8 +85,11 @@ export default {
     grid-template-columns: repeat(4, 1fr);
     align-items: center;
 }
-.users__item nav{
+
+.users__item nav {
     justify-self: end;
+    gap: 5px;
+    display: flex;
 }
 
 .wrapper header {

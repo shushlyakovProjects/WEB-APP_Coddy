@@ -50,9 +50,14 @@ export default {
     // При обновлении приложения
     watch: {
         getCurrentUser() { this.downloadCurrentUser() },
+        // 'infoCurrentUser.phone_number'() {
+        //     let str = this.infoCurrentUser.phone_number
+        //     this.infoCurrentUser.phone_number = str.replace(/[^\d ]/, '')
+        // },
         'infoCurrentUser.phone_number'() {
             let str = this.infoCurrentUser.phone_number
-            this.infoCurrentUser.phone_number = str.replace(/[^\d ]/, '')
+            let rgx = /^(\+|\d)?(\d)*$/
+            if (!rgx.test(str)) {his.infoCurrentUser.phone_number = str.slice(0, -1)}
         }
     },
     methods: {

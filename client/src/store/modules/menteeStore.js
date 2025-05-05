@@ -3,6 +3,12 @@ import axios from 'axios';
 
 export default {
     actions: {
+        async downloadFeedbackFromDatabase(context) {
+            this.commit('updateMessageSuccess', { info: 'Загрузка данных...', isReady: false })
+            await axios.post('/server/from-mentor/downloadFeedbackFromDatabase')
+                .then((result) => { context.commit('updateFeedbackList', result.data) })
+                .catch((error) => { context.commit('updateMessageError', error.response.data) })
+        },
         async downloadMenteeData(context) {
             this.commit('updateMessageSuccess', { info: 'Загрузка данных...', isReady: false })
             await axios.post('/server/from-mentor/downloadMenteeData')
@@ -45,6 +51,10 @@ export default {
         },
     },
     mutations: {
+        updateFeedbackList(state, newData) {
+            state.FEEDBACK_LIST = newData
+            this.commit('updateMessageSuccess', { info: 'Обратная связь получена успешно!', isReady: true })
+        },
         updateMenteeList(state, newData) {
             state.MENTEE_LIST = newData
             this.commit('updateMessageSuccess', { info: 'Данные менти получены успешно!', isReady: true })
@@ -81,6 +91,8 @@ export default {
         ADDED_MENTEE_LIST: [],
         EXCLUDED_MENTEE_LIST: [],
 
+        FEEDBACK_LIST: [],
+
         messages: {
             error: '',
             success: ''
@@ -91,6 +103,7 @@ export default {
             'Юдин', 'Петрова', 'Тихонова', 'Валиуллин', 'Бочкарев', 'Рест', 'Саковых', 'Носков', 'Сарычева', 'Почестнев', 'Проданов']
     },
     getters: {
+        getFeedbackList(state) { return state.FEEDBACK_LIST },
         getMessages(state) { return state.messages },
         getAddedMenteeList(state) { return state.ADDED_MENTEE_LIST },
         getExcludedMenteeList(state) { return state.EXCLUDED_MENTEE_LIST },

@@ -5,9 +5,9 @@
 
             <form @submit.prevent="authorization">
                 <p class="small">Электронная почта</p>
-                <input type="text" placeholder="Укажите email" v-model="dataOfUser.email" required>
+                <input type="text" placeholder="Укажите Email" v-model="dataOfUser.Email" required>
                 <p class="small">Пароль</p>
-                <input type="password" placeholder="Укажите пароль" v-model="dataOfUser.password" required>
+                <input type="Password" placeholder="Укажите пароль" v-model="dataOfUser.Password" required>
 
                 <input type="submit" value="Авторизация">
             </form>
@@ -26,8 +26,8 @@ export default {
     data() {
         return {
             dataOfUser: {
-                email: '',
-                password: ''
+                Email: '',
+                Password: ''
             },
             messages: {
                 error: '',

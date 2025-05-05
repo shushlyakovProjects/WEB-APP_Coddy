@@ -50,8 +50,6 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
     data() {
         return {
@@ -84,16 +82,9 @@ export default {
             }
         },
         async addNewUser() {
-            await axios.post('/server/from-admin/addNewUser', this.infoNewUser)
-                .then(() => {
-                    this.messages.error = ''
-                    this.messages.success = 'Успешно'
-                })
-                .catch(() => {
-                    console.log(error);
-                    this.messages.error = error.response.data
-                    this.messages.success = ''
-                })
+            await this.$store.dispatch('addNewUser', this.infoNewUser)
+            await this.$store.dispatch('downloadUsers')
+            this.$emit('closeAddUser');
         }
     },
 }
@@ -116,5 +107,4 @@ export default {
     align-items: center;
     backdrop-filter: blur(3px);
 }
-
 </style>

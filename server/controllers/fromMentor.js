@@ -17,19 +17,26 @@ router.use((request, response, next) => {
     })
 })
 
-// router.post('////', async (request, response) => {
-//     console.log('Загрузка данных из Google Table');
-//     const { id, role } = request.dataFromChecking
-//     if (role == 'admin' || role == 'moderator') {
-        
-//     } else { { response.status(403).send('Доступ запрещен') } }
-// })
+router.post('/downloadFeedbackFromDatabase', async (request, response) => {
+    console.log('Загрузка обратной связи с базы данных');
+    const { UserId, Role } = request.dataFromChecking
+    if (Role == 'admin' || Role == 'moderator') {
+
+        const SQL_QUERY = `SELECT * FROM feedbacks`
+
+        connectionDB.query(SQL_QUERY, (error, result) => {
+            if (error) { response.status(500).send('Ошибка базы данных') }
+            else { response.status(200).json(result) }
+        })
+
+    } else { { response.status(403).send('Доступ запрещен') } }
+})
 
 
 router.post('/downloadSummaryFromDataBase', async (request, response) => {
     console.log('Загрузка предыдущей сводки...');
-    const { id, role } = request.dataFromChecking
-    if (role == 'admin' || role == 'moderator') {
+    const { UserId, Role } = request.dataFromChecking
+    if (Role == 'admin' || Role == 'moderator') {
         const SQL_QUERY = `SELECT * FROM summary ORDER BY DateOfUpdate DESC LIMIT 1`
         connectionDB.query(SQL_QUERY, (err, result) => {
             if (err) { response.status(500).send('Ошибка базы данных') }
@@ -40,10 +47,10 @@ router.post('/downloadSummaryFromDataBase', async (request, response) => {
 
 router.post('/downloadEveryTrialLesson', async (request, response) => {
     console.log('Загрузка пробных уроков за полгода...');
-    const { id, role } = request.dataFromChecking
-    if (role == 'admin' || role == 'moderator') {
+    const { UserId, Role } = request.dataFromChecking
+    if (Role == 'admin' || Role == 'moderator') {
 
-        const { IDs_MENTEES_LIST } = request.body
+        const { UserIds_MENTEES_LIST } = request.body
 
         const days = 180
         let dateFrom = new Date(new Date() - days * 24 * 60 * 60 * 1000)
@@ -59,16 +66,16 @@ router.post('/downloadEveryTrialLesson', async (request, response) => {
 
                 // Фильтрация. Необходимы только те учебные единицы, которые принадлежат менти
                 const ALL_TRIAL_BY_MENTEES_LIST = ALL_UNITS.filter((unit, index) => {
-                    return IDs_MENTEES_LIST.includes(unit.ScheduleItems[0].TeacherId)
+                    return UserIds_MENTEES_LIST.includes(unit.ScheduleItems[0].TeacherUserId)
                 })
 
                 let TRIALS_LIST = new Map()
                 ALL_TRIAL_BY_MENTEES_LIST.forEach((trial, index) => {
-                    const TeacherId = trial.ScheduleItems[0].TeacherId
-                    let oldValue = TRIALS_LIST.get(TeacherId)
+                    const TeacherUserId = trial.ScheduleItems[0].TeacherUserId
+                    let oldValue = TRIALS_LIST.get(TeacherUserId)
                     if (oldValue == undefined) { oldValue = 0 }
                     else { oldValue++ }
-                    TRIALS_LIST.set(TeacherId, oldValue)
+                    TRIALS_LIST.set(TeacherUserId, oldValue)
                 })
 
                 TRIALS_LIST = Object.fromEntries(TRIALS_LIST)
@@ -86,8 +93,8 @@ router.post('/downloadEveryTrialLesson', async (request, response) => {
 // Загрузка менти
 router.post('/downloadMenteeData', async (request, response) => {
     console.log('Загрузка менти...');
-    const { id, role } = request.dataFromChecking
-    if (role == 'admin' || role == 'moderator') {
+    const { UserId, Role } = request.dataFromChecking
+    if (Role == 'admin' || Role == 'moderator') {
         // ЗАГРУЗКА МЕНТИ
         const startTime = performance.now()
 
@@ -96,13 +103,13 @@ router.post('/downloadMenteeData', async (request, response) => {
             .then(async (result) => {
                 const TEACHERS_LIST = result.data.Teachers
                 const MENTEES_LIST = []
-                const IDs_MENTEES_LIST = []
+                const UserIds_MENTEES_LIST = []
 
                 // Очистка массива со всеми преподавателями, получение ТОЛЬКО МЕНТИ
                 TEACHERS_LIST.forEach(element => {
                     if (element.Status == 'Под менторством') {
                         MENTEES_LIST.push(element)
-                        IDs_MENTEES_LIST.push(element.Id)
+                        UserIds_MENTEES_LIST.push(element.UserId)
                     }
                 });
 
@@ -121,7 +128,7 @@ router.post('/downloadMenteeData', async (request, response) => {
 
                         // Фильтрация. Необходимы только те учебные единицы, которые принадлежат менти
                         const ALL_UNITS_BY_MENTEES_LIST = ALL_UNITS.filter(unit => {
-                            return IDs_MENTEES_LIST.includes(unit.ScheduleItems[0].TeacherId)
+                            return UserIds_MENTEES_LIST.includes(unit.ScheduleItems[0].TeacherUserId)
                         })
 
                         let added_mentee = []
@@ -143,15 +150,15 @@ router.post('/downloadMenteeData', async (request, response) => {
                                     }
 
                                     // Определение новых менти
-                                    mentee.PrevBrief = menteeFromDataBase.find((infoFromDB) => { return infoFromDB.Id == mentee.Id })
+                                    mentee.PrevBrief = menteeFromDataBase.find((infoFromDB) => { return infoFromDB.UserId == mentee.UserId })
                                     if (mentee.PrevBrief == undefined) { added_mentee.push(mentee) }
-                                    if (mentee.PrevBrief != undefined) { menteeFromDataBase.splice(menteeFromDataBase.findIndex(menteeFromDB => menteeFromDB.Id == mentee.Id), 1) }
+                                    if (mentee.PrevBrief != undefined) { menteeFromDataBase.splice(menteeFromDataBase.findIndex(menteeFromDB => menteeFromDB.UserId == mentee.UserId), 1) }
 
 
                                     // Перебор всех учебных единиц, распределение по разным менти
                                     ALL_UNITS_BY_MENTEES_LIST.forEach((unit) => {
-                                        const teacherIdOfUnit = unit.ScheduleItems[0].TeacherId
-                                        if (teacherIdOfUnit == mentee.Id) {
+                                        const teacherUserIdOfUnit = unit.ScheduleItems[0].TeacherUserId
+                                        if (teacherUserIdOfUnit == mentee.UserId) {
                                             info_mentee_units.CountAllEdUnits++
                                             if (unit.Type == 'TrialLesson') { info_mentee_units.CountTrialUnitsForWeek++ }
                                             if (unit.Type != 'TrialLesson') { info_mentee_units.CountConstantUnits++ }
@@ -180,19 +187,19 @@ router.post('/downloadMenteeData', async (request, response) => {
 
 // Редактирование профиля
 router.post('/edit-profile', (request, response) => {
-    const { id, role } = request.dataFromChecking
-    const { email, password, phone_number, first_name, last_name } = request.body
+    const { UserId, Role } = request.dataFromChecking
+    const { Email, Password, Phone, FirstName, LastName } = request.body
 
     let SQL_QUERY = null
 
-    if (password) {
+    if (Password) {
         const salt = bcrypt.genSaltSync(5) // Генерируем соль
-        const hashPass = bcrypt.hashSync(password, salt) // Хешируем пароль
+        const hashPass = bcrypt.hashSync(Password, salt) // Хешируем пароль
 
-        SQL_QUERY = `UPDATE users SET email='${email}', password='${hashPass}', phone_number='${phone_number}', first_name='${first_name}', last_name='${last_name}' WHERE user_id='${id}'`
+        SQL_QUERY = `UPDATE users SET Email='${Email}', Password='${hashPass}', Phone='${Phone}', FirstName='${FirstName}', LastName='${LastName}' WHERE UserId='${UserId}'`
 
     }
-    else { SQL_QUERY = `UPDATE users SET email='${email}', phone_number='${phone_number}', first_name='${first_name}', last_name='${last_name}' WHERE user_id='${id}'` }
+    else { SQL_QUERY = `UPDATE users SET Email='${Email}', Phone='${Phone}', FirstName='${FirstName}', LastName='${LastName}' WHERE UserId='${UserId}'` }
 
 
     connectionDB.query(SQL_QUERY, (error, result) => {

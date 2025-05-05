@@ -8,7 +8,7 @@
                 </div>
 
                 <nav>
-                    <button @click="uploadToDataBaseForSummary()">Загрузить в базу</button>
+                    <button @click="uploadToDataBaseForSummary()" title="Начать недельный отсчёт">Еженедельная фиксация</button>
                 </nav>
             </header>
 
@@ -69,12 +69,6 @@
                     <div class="loading" v-if="!fields.countOfMentee"></div>
                 </div>
 
-            </div>
-
-            <div class="test">
-                <h2>Обратная связь</h2>
-                <h3>Создать форму для сбора обратной связи с менти</h3>
-                <!-- <button @click="getInfoFromGoogleTable()">Отправить запрос в Google Table</button> -->
             </div>
 
         </main>

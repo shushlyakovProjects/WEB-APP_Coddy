@@ -5,7 +5,7 @@
             <EditProfile @closeProfileSettings="isOpenProfileSettings = false" v-if="isOpenProfileSettings"></EditProfile>
 
             <header>
-                <h2>{{ getCurrentUser.last_name }} {{ getCurrentUser.first_name }}</h2>
+                <h2>{{ getCurrentUser.LastName }} {{ getCurrentUser.FirstName }}</h2>
                 <nav>
                     <img class="icon" src="../../../public/img/settings.svg" alt="Настройки"
                         title="Редактировать профиль" @click="this.isOpenAdminSettings = true"
@@ -20,11 +20,11 @@
             <div class="info1">
                 <ul>
                     <li> <span>Роль</span><br>
-                        {{ getCurrentUser.role }}</li>
+                        {{ getCurrentUser.Role }}</li>
                     <li> <span>Номер телефона</span><br>
-                        {{ getCurrentUser.phone_number }}</li>
+                        {{ getCurrentUser.Phone }}</li>
                     <li> <span>Email</span><br>
-                        {{ getCurrentUser.email }}</li>
+                        {{ getCurrentUser.Email }}</li>
                 </ul>
             </div>
             <div class="info2"></div>

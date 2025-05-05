@@ -19,11 +19,15 @@ const connectionDB = require('./connectionDB')
 
 router.post('/newFeedback', async (request, response) => {
     console.log('Новая обратная связь!');
-    const feedBack = request.body
-    console.log(feedBack);
+    const { FIO, Phone, HasConstantUnit, CheckInfo, Comments, CountTrialUnits, CountConstantUnits, CountPaidModules, NewLoad } = request.body
 
-    // ЗАГРУЗИТЬ ДАННЫЕ В ТАБЛИЦУ FEEDBACKS
-    
+    const SQL_QUERY = `INSERT INTO feedbacks(FeedBackID, Date, FIO, Phone, CheckInfo, Comments, NewLoad, HasConstantUnit, CountConstantUnits, CountPaidModules, CountTrialUnits) 
+    VALUES(null, '${new Date()}', '${FIO}', '${Phone}', '${CheckInfo}', '${Comments}', '${NewLoad}', '${HasConstantUnit}', '${CountConstantUnits}', '${CountPaidModules}', '${CountTrialUnits}')`
+
+    connectionDB.query(SQL_QUERY, (error, result) => {
+        if (error) { response.status(500).send('Ошибка базы данных. Попробуйте позже :(')}
+        else {response.status(200).send('Обратная связь отправлена. Спасибо!')}
+    })
 })
 
 

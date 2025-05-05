@@ -1,13 +1,13 @@
 <template>
   <div id="main-wrapper">
 
-    <Header v-if="getCurrentUser.user_id" :currentUser="getCurrentUser"></Header>
+    <Header v-if="getCurrentUser.UserId" :currentUser="getCurrentUser"></Header>
 
     <transition name="notification">
       <article class="notification" v-if="messages.error || messages.success">
         <p>🔔 Уведомление</p>
-        <p class="small errorMessage">{{ messages.error }}</p>
-        <p class="small successMessage">{{ messages.success }}</p>
+        <p class="small error_message">{{ messages.error }}</p>
+        <p class="small success_message">{{ messages.success }}</p>
       </article>
     </transition>
 

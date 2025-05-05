@@ -14,7 +14,6 @@ function getDateNow() {
     return `${day}-${month}-${year}`
 }
 
-
 router.use((request, response, next) => {
     const token = request.cookies.ACCESS_TOKEN
     jwt.verify(token, SECRET_ACCESS_KEY, (error, decodeData) => {
@@ -25,12 +24,12 @@ router.use((request, response, next) => {
 
 router.post('/uploadToDataBaseForSummary', (request, response) => {
     console.log('Загрузка сводки в базу...');
-    const { id, role } = request.dataFromChecking
+    const { UserId, Role } = request.dataFromChecking
     const { data } = request.body
 
-    if (role == 'admin') {
-        const SQL_QUERY = `INSERT INTO summary (DateOfUpdate, CountOfMentee, СountOfNewEdUnits, СountOfNewTrials, CountOfMenteeWithConstantUnits, CountOfConstantUnits, CountOfPaidModules) 
-        VALUES ('${getDateNow()}', '${data.countOfMentee}','${data.countOfNewEdUnits}','${data.countOfNewTrials}','${data.countOfMenteeWithConstantUnits}','${data.countOfConstantUnits}','${data.countOfPaidModules}')`
+    if (Role == 'admin') {
+        const SQL_QUERY = `INSERT INTO summary (DateOfUpdate, CountOfMentee, СountOfNewEdUnits, СountOfNewTrials, CountOfMenteeWithConstantUnits, CountOfConstantUnits, CountOfPaUserIdModules) 
+        VALUES ('${getDateNow()}', '${data.countOfMentee}','${data.countOfNewEdUnits}','${data.countOfNewTrials}','${data.countOfMenteeWithConstantUnits}','${data.countOfConstantUnits}','${data.countOfPaUserIdModules}')`
         connectionDB.query(SQL_QUERY, (error, result) => {
             if (error) {
                 if (error.sqlMessage.includes('Duplicate')) { response.status(501).send('Данные сегодня уже загружались') }
@@ -47,25 +46,25 @@ router.post('/uploadToDataBaseForSummary', (request, response) => {
 
 router.post('/uploadToDataBaseForTracking', (request, response) => {
     console.log('Загрузка информации в базу...');
-    const { id, role } = request.dataFromChecking
+    const { UserId, Role } = request.dataFromChecking
     const { DATALIST_FORTRACKING } = request.body
 
-    if (role == 'admin') {
+    if (Role == 'admin') {
 
-        // Определение ID существующих преподавателей в базе
-        let IDs_EXISTING_MENTEES = []
+        // Определение UserId существующих преподавателей в базе
+        let UserIds_EXISTING_MENTEES = []
         const GET_EXISTING_SQL_QUERY = 'SELECT * FROM mentees'
         connectionDB.query(GET_EXISTING_SQL_QUERY, (error, result) => {
             if (error) { response.status(500).send('Ошибка базы данных') }
             else {
-                result.forEach(mentee => { IDs_EXISTING_MENTEES.push(mentee.Id) })
+                result.forEach(mentee => { UserIds_EXISTING_MENTEES.push(mentee.MenteeId) })
 
                 // Перебор, определение, кого обновить, кого добавить
                 let SQL_QUERY = ''
                 let changedRows = 0
 
                 DATALIST_FORTRACKING.forEach((mentee, index) => {
-                    if (IDs_EXISTING_MENTEES.includes(mentee.Id)) {
+                    if (UserIds_EXISTING_MENTEES.includes(mentee.MenteeId)) {
                         SQL_QUERY = `UPDATE mentees SET 
                         LastName='${mentee.LastName}', 
                         FirstName='${mentee.FirstName}',  
@@ -75,15 +74,15 @@ router.post('/uploadToDataBaseForTracking', (request, response) => {
                         CountTrialLessonsForSixMonths='${mentee.CountTrialLessonsForSixMonths}', 
                         CountConstantUnits='${mentee.CountConstantUnits}',
                         LastUpdate='${getDateNow()}' 
-                        WHERE Id='${mentee.Id}' AND 
+                        WHERE MenteeId='${mentee.MenteeId}' AND 
                         (LastName<>'${mentee.LastName}' OR FirstName<>'${mentee.FirstName}' 
                         OR Disciplines<>'${mentee.Disciplines}' OR CountAllEdUnits<>'${mentee.CountAllEdUnits}' 
                         OR CountTrialUnitsForWeek<>'${mentee.CountTrialUnitsForWeek}' OR CountConstantUnits<>'${mentee.CountConstantUnits}'
                         OR CountTrialLessonsForSixMonths<>'${mentee.CountTrialLessonsForSixMonths}')`
                     } else {
-                        SQL_QUERY = `INSERT INTO mentees (Id, LastName, FirstName, Disciplines, CountAllEdUnits, 
+                        SQL_QUERY = `INSERT INTO mentees (MenteeId, LastName, FirstName, Disciplines, CountAllEdUnits, 
                         CountTrialUnitsForWeek, CountTrialLessonsForSixMonths, CountConstantUnits, LastUpdate) 
-                        VALUES ('${mentee.Id}', '${mentee.LastName}', '${mentee.FirstName}', '${mentee.Disciplines}', 
+                        VALUES ('${mentee.MenteeId}', '${mentee.LastName}', '${mentee.FirstName}', '${mentee.Disciplines}', 
                         '${mentee.CountAllEdUnits}', '${mentee.CountTrialUnitsForWeek}', '${mentee.CountTrialLessonsForSixMonths}', '${mentee.CountConstantUnits}', '${getDateNow()}')`
                     }
 
@@ -108,8 +107,8 @@ router.post('/uploadToDataBaseForTracking', (request, response) => {
 
 router.post('/downloadUsers', (request, response) => {
     console.log('Загрузка пользователей...');
-    const { id, role } = request.dataFromChecking
-    if (role == 'admin') {
+    const { UserId, Role } = request.dataFromChecking
+    if (Role == 'admin') {
         const SQL_QUERY = `SELECT * FROM users`
         connectionDB.query(SQL_QUERY, (error, result) => {
             if (error) { response.status(500).send('Ошибка базы данных') }
@@ -123,14 +122,15 @@ router.post('/downloadUsers', (request, response) => {
 
 router.post('/addNewUser', (request, response) => {
     console.log('Добавление нового пользователя...');
-    const { id, role: currentRole } = request.dataFromChecking
+    const { UserId, Role: currentRole } = request.dataFromChecking
     if (currentRole == 'admin') {
-        const { email, password, phone_number, first_name, last_name, role } = request.body
-        const salt = bcrypt.genSaltSync(5) // Генерируем соль
-        const hashPass = bcrypt.hashSync(password, salt) // Хешируем пароль
 
-        const SQL_QUERY = `INSERT INTO users (user_id,email, password, phone_number, first_name, last_name, role) 
-            VALUES (null, '${email}', '${hashPass}', '${phone_number}', '${first_name}', '${last_name}', '${role}')`
+        const { Email, Password, Phone, FirstName, LastName, Role } = request.body
+        const salt = bcrypt.genSaltSync(5) // Генерируем соль
+        const hashPass = bcrypt.hashSync(Password, salt) // Хешируем пароль
+
+        const SQL_QUERY = `INSERT INTO users (UserUserId, Email, Password, Phone, FirstName, LastName, Role) 
+            VALUES (null, '${Email}', '${hashPass}', '${Phone}', '${FirstName}', '${LastName}', '${Role}')`
         connectionDB.query(SQL_QUERY, (error, result) => {
             if (error) { response.status(500).send('Ошибка базы данных') }
             else { response.status(200).send('Пользователь добавлен') }
@@ -142,21 +142,45 @@ router.post('/addNewUser', (request, response) => {
 })
 
 
+router.post('/edit-user', (request, response) => {
+    const { UserId, Role } = request.dataFromChecking
+    if (Role == 'admin') {
+        const { UserId, Email, Password, Phone, FirstName, LastName, Role } = request.body
+        let SQL_QUERY = null
+
+        if (Password) {
+            const salt = bcrypt.genSaltSync(5) // Генерируем соль
+            const hashPass = bcrypt.hashSync(Password, salt) // Хешируем пароль
+
+            SQL_QUERY = `UPDATE users SET Email='${Email}', Password='${hashPass}', Phone='${Phone}', FirstName='${FirstName}', LastName='${LastName}', Role='${Role}' WHERE UserId='${UserId}'`
+        }
+        else { SQL_QUERY = `UPDATE users SET Email='${Email}', Phone='${Phone}', FirstName='${FirstName}', LastName='${LastName}', Role='${Role}' WHERE UserId='${UserId}'` }
+
+        connectionDB.query(SQL_QUERY, (error, result) => {
+            if (error) { response.status(500).send('Ошибка базы данных') }
+            else { response.status(200).send('Данные обновлены успешно!') }
+        })
+    } else {
+        response.status(403).send('Доступ запрещен!')
+    }
+
+})
+
 router.post('/edit-admin', (request, response) => {
-    const { id, role } = request.dataFromChecking
-    if (role == 'admin') {
-        const { email, password, phone_number, first_name, last_name } = request.body
+    const { UserId, Role } = request.dataFromChecking
+    if (Role == 'admin') {
+        const { Email, Password, Phone, FirstName, LastName } = request.body
 
         let SQL_QUERY = null
 
-        if (password) {
+        if (Password) {
             const salt = bcrypt.genSaltSync(5) // Генерируем соль
-            const hashPass = bcrypt.hashSync(password, salt) // Хешируем пароль
+            const hashPass = bcrypt.hashSync(Password, salt) // Хешируем пароль
 
-            SQL_QUERY = `UPDATE users SET email='${email}', password='${hashPass}', phone_number='${phone_number}', first_name='${first_name}', last_name='${last_name}' WHERE user_id='${id}'`
+            SQL_QUERY = `UPDATE users SET Email='${Email}', Password='${hashPass}', Phone='${Phone}', FirstName='${FirstName}', LastName='${LastName}' WHERE UserUserId='${UserId}'`
 
         }
-        else { SQL_QUERY = `UPDATE users SET email='${email}', phone_number='${phone_number}', first_name='${first_name}', last_name='${last_name}' WHERE user_id='${id}'` }
+        else { SQL_QUERY = `UPDATE users SET Email='${Email}', Phone='${Phone}', FirstName='${FirstName}', LastName='${LastName}' WHERE UserUserId='${UserId}'` }
 
 
         connectionDB.query(SQL_QUERY, (error, result) => {
@@ -170,32 +194,6 @@ router.post('/edit-admin', (request, response) => {
 
 })
 
-router.post('/edit-user', (request, response) => {
-    const { id, role } = request.dataFromChecking
-    if (role == 'admin') {
-
-        const { user_id, email, password, phone_number, first_name, last_name, role } = request.body
-
-        let SQL_QUERY = null
-
-        if (password) {
-            const salt = bcrypt.genSaltSync(5) // Генерируем соль
-            const hashPass = bcrypt.hashSync(password, salt) // Хешируем пароль
-
-            SQL_QUERY = `UPDATE users SET email='${email}', password='${hashPass}', phone_number='${phone_number}', first_name='${first_name}', last_name='${last_name}', role='${role}' WHERE user_id='${user_id}'`
-
-        }
-        else { SQL_QUERY = `UPDATE users SET email='${email}', phone_number='${phone_number}', first_name='${first_name}', last_name='${last_name}', role='${role}' WHERE user_id='${user_id}'` }
-
-        connectionDB.query(SQL_QUERY, (error, result) => {
-            if (error) { response.status(500).send('Ошибка базы данных') }
-            else { response.status(200).send('Данные обновлены успешно!') }
-        })
-    } else {
-        response.status(403).send('Доступ запрещен!')
-    }
-
-})
 
 
 

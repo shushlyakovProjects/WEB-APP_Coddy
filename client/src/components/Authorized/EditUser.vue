@@ -12,27 +12,27 @@
             <form class="fields" @submit.prevent="editUser">
                 <div class="fields__item">
                     <p>Email</p>
-                    <input type="email" placeholder="Укажите email" v-model="infoSelectedUser.email">
+                    <input type="email" placeholder="Укажите email" v-model="infoSelectedUser.Email">
                 </div>
                 <div class="fields__item">
                     <p>Пароль</p>
-                    <input type="text" placeholder="Укажите пароль" v-model="infoSelectedUser.password">
+                    <input type="text" placeholder="Укажите пароль" v-model="infoSelectedUser.Password">
                 </div>
                 <div class="fields__item">
                     <p>Номер телефона</p>
-                    <input type="text" placeholder="Укажите номер телефона" v-model="infoSelectedUser.phone_number">
+                    <input type="text" placeholder="Укажите номер телефона" v-model="infoSelectedUser.Phone">
                 </div>
                 <div class="fields__item">
                     <p>Имя</p>
-                    <input type="text" placeholder="Укажите имя" v-model="infoSelectedUser.first_name">
+                    <input type="text" placeholder="Укажите имя" v-model="infoSelectedUser.FirstName">
                 </div>
                 <div class="fields__item">
                     <p>Фамилия</p>
-                    <input type="text" placeholder="Укажите фамилию" v-model="infoSelectedUser.last_name">
+                    <input type="text" placeholder="Укажите фамилию" v-model="infoSelectedUser.LastName">
                 </div>
                 <div class="fields__item">
                     <p>Роль</p>
-                    <select placeholder="Укажите роль" v-model="infoSelectedUser.role">
+                    <select placeholder="Укажите роль" v-model="infoSelectedUser.Role">
                         <option value="admin">Администратор</option>
                         <option value="moderator">Модератор</option>
                     </select>
@@ -56,12 +56,12 @@ export default {
     data() {
         return {
             infoSelectedUser: {
-                email: '',
-                password: '',
-                phone_number: '',
-                first_name: '',
-                last_name: '',
-                role: ''
+                Email: '',
+                Password: '',
+                Phone: '',
+                FirstName: '',
+                LastName: '',
+                Role: ''
             },
             hiddenFields: ['user_id'],
             messages: {
@@ -83,7 +83,7 @@ export default {
         },
         getFieldsCurrentUser() {
             for (let key in this.selectedUser) {
-                if (key == 'password') {
+                if (key == 'Password') {
                     this.infoSelectedUser[key] = ''
                 }
                 else if (this.hiddenFields.indexOf(key) == -1) {
@@ -91,21 +91,10 @@ export default {
                 }
             }
         },
-        async editUser() {
-            this.infoSelectedUser.user_id = this.selectedUser.user_id
-            await axios.post('/server/from-admin/edit-user', this.infoSelectedUser)
-                .then((result) => {
-                    this.messages.error = ''
-                    this.messages.success = 'Успешно'
-                    this.$emit('closeUserSettings');
-                    this.$emit('downloadUsers')
-                    this.$store.dispatch('checkAuthorization', this.$router)
-                })
-                .catch((error) => {
-                    console.log(error);
-                    this.messages.error = error.response.data
-                    this.messages.success = ''
-                })
+        async editUser(){
+            await this.$store.dispatch('editUser', this.infoSelectedUser)
+            // await this.$store.dispatch('downloadUsers')
+            this.$emit('closeUserSettings');
         }
     },
 

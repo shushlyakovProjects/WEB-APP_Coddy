@@ -1,4 +1,4 @@
-:root{
+:root {
     --color_background-1_white: #F4F5F6;
     --color_background-2_white: #E7EBFA;
     --color_background-3_white: #FFFFFF;
@@ -18,4 +18,29 @@
     --color_gradient_lightBlue: linear-gradient(90deg, #5CB8CE, #5DD3EE, #0093B5);
     --color_gradient_orange: linear-gradient(-45deg, #EA4400, #FF6600, #FFD900);
     --color_gradient_pink: linear-gradient(20deg, #FF16A3, #FF93D5, #FF16A3);
+}
+
+/* Раскраска */
+.backlight_red-1 {
+    background-color: rgb(219, 188, 188);
+}
+
+.backlight_red-2 {
+    background-color: rgb(205, 137, 137);
+}
+
+.backlight_yellow-1 {
+    background-color: rgb(228, 219, 148);
+}
+
+.backlight_yellow-2 {
+    background-color: rgb(200, 200, 63);
+}
+
+.backlight_green-1 {
+    background-color: rgb(163, 211, 151);
+}
+
+.backlight_green-2 {
+    background-color: rgb(93, 200, 77);
 }

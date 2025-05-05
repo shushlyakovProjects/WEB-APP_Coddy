@@ -88,6 +88,12 @@ button:hover {
     background: var(--color_accent_darkBlue);
 }
 
+input[type='reset']:focus,
+input[type='submit']:focus,
+button:focus{
+    background-color: var(--color_accent_pink);
+}
+
 h1 {
     font-size: var(--size_textDesktop_header-1)
 }

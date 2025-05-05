@@ -2,11 +2,10 @@
     <header>
         <h2 class="logo">Ментор CODDY</h2>
         <nav>
-            <router-link class="link" to="/">Главная</router-link>
-            <router-link class="link" to="/mentee/feedback">Обратная связь</router-link>
+            <router-link class="link" to="/mentor/feedback">Обратная связь</router-link>
             <router-link class="link" to="/mentor/mentee-summary">Сводка</router-link>
             <router-link class="link" to="/mentor/mentee-list">Менти</router-link>
-            <router-link class="link" to="/mentor/users-list" v-if="currentUser.role=='admin'">Пользователи</router-link>
+            <router-link class="link" to="/mentor/users-list" v-if="currentUser.Role=='admin'">Пользователи</router-link>
             <router-link class="link" to="/mentor/lk">Профиль</router-link>
             <a class="link" @click.prevent="logout">Выйти</a>
         </nav>
